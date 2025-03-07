@@ -11,7 +11,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Media;
 using JetBrains.Annotations;
@@ -114,7 +113,7 @@ public class TreeItem : INotifyPropertyChanged, IDisposable
                     new MenuItem { Header = "Tree (without filter)", Command = SnoopUI.ExportTreeWithFilterCommand, CommandParameter = new ExportOptions { Recurse = true, TreeItem = this, UseFilter = false } },
                     new Separator(),
                     new MenuItem { Header = "Element (with filter)", Command = SnoopUI.ExportTreeWithFilterCommand, CommandParameter = new ExportOptions { Recurse = false, TreeItem = this, UseFilter = true } },
-                    new MenuItem { Header = "Element (without filter)", Command = SnoopUI.ExportTreeWithFilterCommand, CommandParameter = new ExportOptions { Recurse = false, TreeItem = this, UseFilter = false } },
+                    new MenuItem { Header = "Element (without filter)", Command = SnoopUI.ExportTreeWithFilterCommand, CommandParameter = new ExportOptions { Recurse = false, TreeItem = this, UseFilter = false } }
                 }
             }
         };
@@ -313,7 +312,7 @@ public class TreeItem : INotifyPropertyChanged, IDisposable
 
     protected void RemoveAllChildren()
     {
-        foreach (var item in this.children.ToList())
+        foreach (var item in this.children.ToArray())
         {
             item.IsSelected = false;
             item.Dispose();

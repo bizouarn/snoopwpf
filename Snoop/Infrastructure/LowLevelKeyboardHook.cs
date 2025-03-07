@@ -29,32 +29,6 @@ public class LowLevelKeyboardHook
         this.cachedProc = this.HookCallback;
     }
 
-    //public class LowLevelKeyPressEventArgs : EventArgs
-    //{
-    //    public LowLevelKeyPressEventArgs(ModifierKeys modifierKeys, Key key)
-    //    {
-    //        this.ModifierKeys = modifierKeys;
-    //        this.Key = key;
-    //    }
-
-    //    public ModifierKeys ModifierKeys { get; }
-
-    //    public Key Key { get; }
-
-    //    public static LowLevelKeyPressEventArgs CreateNew(Key key)
-    //    {
-    //        var modifierKeys = Keyboard.Modifiers;
-
-    //        if (Keyboard.IsKeyDown(Key.LWin)
-    //            || Keyboard.IsKeyDown(Key.RWin))
-    //        {
-    //            modifierKeys |= ModifierKeys.Windows;
-    //        }
-
-    //        return new LowLevelKeyPressEventArgs(modifierKeys, key);
-    //    }
-    //}
-
     public event EventHandler<KeyEventArgs>? LowLevelKeyDown;
 
     public event EventHandler<KeyEventArgs>? LowLevelKeyUp;
@@ -140,7 +114,7 @@ public class LowLevelKeyboardHook
         LLKHF_EXTENDED = 0x01,
         LLKHF_INJECTED = 0x10,
         LLKHF_ALTDOWN = 0x20,
-        LLKHF_UP = 0x80,
+        LLKHF_UP = 0x80
     }
 
     // ReSharper restore InconsistentNaming

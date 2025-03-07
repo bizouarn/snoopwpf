@@ -55,7 +55,7 @@ public static class SignPathTasks2
     {
         using (SwitchSecurityProtocol())
         {
-            var contentType = "application/json";
+            const string contentType = "application/json";
             var content = new
                           {
                               AppVeyor.Instance.AccountName,
@@ -131,7 +131,7 @@ public static class SignPathTasks2
             var downloadStream = await response.Content.ReadAsStreamAsync();
 
             outputPath.Parent.CreateDirectory();
-            using var fileStream = File.Open(outputPath, FileMode.Create);
+            await using var fileStream = File.Open(outputPath, FileMode.Create);
             await downloadStream.CopyToAsync(fileStream);
             Log.Information("Signed artifact downloaded to: {OutputPath}", outputPath);
         }
@@ -216,7 +216,7 @@ public static class SignPathTasks2
     {
         StreamContent GetStreamContent()
         {
-            var contentType = "application/octet-stream";
+            const string contentType = "application/octet-stream";
             using var content = new FileStream(artifactFile, FileMode.Open);
 
             var streamContent = new StreamContent(content);
@@ -236,8 +236,8 @@ public static class SignPathTasks2
                            (nameof(signingPolicySlug), signingPolicySlug),
                            (nameof(description), description)
                        }
-                .Where(x => x.Item2 != null).ToList();
-            data.ForEach(x => content.Add(new StringContent(x.Item2!), x.Item1));
+                .Where(x => x.Item2 != null).ToArray();
+            Array.ForEach(data, x => content.Add(new StringContent(x.Item2!), x.Item1));
             content.Add(GetStreamContent(), "Artifact", artifactFile);
 
             return new HttpRequestMessage(HttpMethod.Post, url) { Content = content };

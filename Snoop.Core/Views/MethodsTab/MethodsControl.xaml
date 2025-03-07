@@ -12,7 +12,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:methodsTab="clr-namespace:Snoop.Views.MethodsTab"
-             xmlns:snoop="clr-namespace:Snoop"
              d:DesignHeight="300"
              d:DesignWidth="420"
              mc:Ignorable="d">

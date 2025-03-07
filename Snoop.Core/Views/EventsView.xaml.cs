@@ -6,7 +6,6 @@
 namespace Snoop.Views;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -208,7 +207,7 @@ public partial class EventsView : INotifyPropertyChanged, IDisposable
                 Mouse.MouseDownEvent,
                 Mouse.PreviewMouseDownEvent,
                 Mouse.MouseUpEvent,
-                CommandManager.ExecutedEvent,
+                CommandManager.ExecutedEvent
             });
 
     #region INotifyPropertyChanged Members

@@ -6,17 +6,10 @@
 
 #nullable disable
 
-using System.Windows.Shapes;
 using System.Windows.Controls;
-using System.Diagnostics;
-using System.Threading;
-
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using MS.Internal;
-
 using System;
 
 namespace Snoop.Themes;
@@ -110,7 +103,7 @@ public sealed class ListBoxChrome : Decorator
     /// DependencyProperty for <see cref="RenderMouseOver" /> property.
     /// </summary>
     public static readonly DependencyProperty RenderMouseOverProperty =
-        DependencyProperty.Register("RenderMouseOver",
+        DependencyProperty.Register(nameof(RenderMouseOver),
             typeof(bool),
             typeof(ListBoxChrome),
             new FrameworkPropertyMetadata(
@@ -176,7 +169,7 @@ public sealed class ListBoxChrome : Decorator
     /// DependencyProperty for <see cref="RenderFocused" /> property.
     /// </summary>
     public static readonly DependencyProperty RenderFocusedProperty =
-        DependencyProperty.Register("RenderFocused",
+        DependencyProperty.Register(nameof(RenderFocused),
             typeof(bool),
             typeof(ListBoxChrome),
             new FrameworkPropertyMetadata(
@@ -624,17 +617,7 @@ public sealed class ListBoxChrome : Decorator
 
     private Brush BackgroundOverlay
     {
-        get
-        {
-            if (!IsEnabled)
-            {
-                return CommonDisabledBackgroundOverlay;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        get { return !this.IsEnabled ? CommonDisabledBackgroundOverlay : null; }
     }
 
 

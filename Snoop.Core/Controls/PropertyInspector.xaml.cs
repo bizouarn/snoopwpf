@@ -56,7 +56,7 @@ public partial class PropertyInspector : INotifyPropertyChanged
         this.CommandBindings.Add(new CommandBinding(DelveCommand, this.HandleDelve, CanDelve));
         this.CommandBindings.Add(new CommandBinding(DelveBindingCommand, this.HandleDelveBinding, CanDelveBinding));
         this.CommandBindings.Add(new CommandBinding(DelveBindingExpressionCommand, this.HandleDelveBindingExpression, CanDelveBindingExpression));
-        this.CommandBindings.Add(new CommandBinding(CopyResourceNameCommand, this.HandleCopyResourceName, this.CanCopyResourceName));
+        this.CommandBindings.Add(new CommandBinding(CopyResourceNameCommand, HandleCopyResourceName, CanCopyResourceName));
         this.CommandBindings.Add(new CommandBinding(CopyXamlCommand, this.HandleCopyXaml, this.CanCopyXaml));
         this.CommandBindings.Add(new CommandBinding(CopyFQNameCommand, this.HandleCopyFQName, this.CanCopyFQName));
 
@@ -87,7 +87,7 @@ public partial class PropertyInspector : INotifyPropertyChanged
         }
     }
 
-    private void HandleCopyResourceName(object sender, ExecutedRoutedEventArgs e)
+    private static void HandleCopyResourceName(object sender, ExecutedRoutedEventArgs e)
     {
         try
         {
@@ -100,7 +100,7 @@ public partial class PropertyInspector : INotifyPropertyChanged
         }
     }
 
-    private void CanCopyResourceName(object sender, CanExecuteRoutedEventArgs e)
+    private static void CanCopyResourceName(object sender, CanExecuteRoutedEventArgs e)
     {
         if (e.Parameter is PropertyInformation propertyInformation)
         {
@@ -244,7 +244,7 @@ public partial class PropertyInspector : INotifyPropertyChanged
     {
         if (this.delvePathList.Count > 0)
         {
-            var lastDelveEntry = this.delvePathList.Last();
+            var lastDelveEntry = this.delvePathList[this.delvePathList.Count - 1];
 
             if (lastDelveEntry.Value is ISkipDelve skipDelve
                 && skipDelve.NextValue is not null
@@ -629,7 +629,7 @@ public partial class PropertyInspector : INotifyPropertyChanged
 
             if (value.IsEditCommand)
             {
-                var dlg = new EditUserFilters { UserFilters = this.CopyFilterSets(this.defaultFilterSets.ToList().Concat(this.UserFilterSets)) };
+                var dlg = new EditUserFilters { UserFilters = this.CopyFilterSets(this.defaultFilterSets.Concat(this.UserFilterSets)) };
 
                 var res = dlg.ShowDialogEx(this);
 
@@ -688,14 +688,14 @@ public partial class PropertyInspector : INotifyPropertyChanged
                 {
                     DisplayName = "(Default)",
                     IsDefault = true,
-                    IsEditCommand = false,
+                    IsEditCommand = false
                 });
             ret.Add(
                 new PropertyFilterSet
                 {
                     DisplayName = "Edit Filters...",
                     IsDefault = false,
-                    IsEditCommand = true,
+                    IsEditCommand = true
                 });
 
             this.allFilterSets = ret.ToArray();
@@ -718,11 +718,11 @@ public partial class PropertyInspector : INotifyPropertyChanged
     /// Cleanse the property names in each filter in the collection.
     /// This includes removing spaces from each one, and making them all lower case
     /// </summary>
-    private static List<PropertyFilterSet> CleanFiltersForUserFilters(ICollection<PropertyFilterSet>? collection)
+    private static PropertyFilterSet[] CleanFiltersForUserFilters(ICollection<PropertyFilterSet>? collection)
     {
         if (collection is null)
         {
-            return new List<PropertyFilterSet>();
+            return Array.Empty<PropertyFilterSet>();
         }
 
         foreach (var filterItem in collection)
@@ -730,7 +730,7 @@ public partial class PropertyInspector : INotifyPropertyChanged
             filterItem.Properties = filterItem.Properties?.Select(s => s.ToLower().Trim()).ToArray();
         }
 
-        return collection.Where(x => x.IsReadOnly == false).ToList();
+        return collection.Where(x => !x.IsReadOnly).ToArray();
     }
 
     private readonly List<object> inspectStack = new();

@@ -140,33 +140,6 @@ public class FiltersViewModel : INotifyPropertyChanged
         return false;
     }
 
-    private string GetFirstNonUsedGroupId()
-    {
-        var index = 1;
-        while (true)
-        {
-            if (!this.GroupIdTaken(index.ToString()))
-            {
-                return index.ToString();
-            }
-
-            index++;
-        }
-    }
-
-    private bool GroupIdTaken(string groupID)
-    {
-        foreach (var filter in this.multipleFilters)
-        {
-            if (groupID.Equals(filter.GroupId, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public void GroupFilters(IEnumerable<SnoopFilter> filtersToGroup)
     {
         var multipleFilter = new SnoopMultipleFilter();

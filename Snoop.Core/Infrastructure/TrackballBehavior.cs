@@ -84,8 +84,7 @@ public class TrackballBehavior
 
     private void UpdateCamera()
     {
-        var projectionCamera = this.viewport.Camera as ProjectionCamera;
-        if (projectionCamera is not null)
+        if (this.viewport.Camera is ProjectionCamera projectionCamera)
         {
             var matrix = Matrix3D.Identity;
             matrix.Rotate(this.orientation);

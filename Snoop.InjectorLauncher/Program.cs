@@ -49,37 +49,33 @@ public static class Program
 
             // Check for target process and our architecture.
             // If they don't match we redirect everything to the appropriate injector launcher.
+            using var currentProcess = Process.GetCurrentProcess();
+            var currentProcessArchitecture = NativeMethods.GetArchitectureWithoutException(currentProcess);
+            if (!processWrapper.Architecture.Equals(currentProcessArchitecture, StringComparison.Ordinal))
             {
-                using var currentProcess = Process.GetCurrentProcess();
-                var currentProcessArchitecture = NativeMethods.GetArchitectureWithoutException(currentProcess);
-                if (processWrapper.Architecture.Equals(currentProcessArchitecture, StringComparison.Ordinal) == false)
-                {
-                    Injector.LogMessage("Target process and injector process have different architectures, trying to redirect to secondary process...");
+                Injector.LogMessage("Target process and injector process have different architectures, trying to redirect to secondary process...");
 
-                    var originalProcessFileName = currentProcess.MainModule!.ModuleName!;
+                var originalProcessFileName = currentProcess.MainModule!.ModuleName!;
 #pragma warning disable CA1307
-                    var correctArchitectureFileName = originalProcessFileName.Replace(currentProcessArchitecture, processWrapper.Architecture);
-                    var processStartInfo = new ProcessStartInfo(currentProcess.MainModule.FileName!.Replace(originalProcessFileName, correctArchitectureFileName), Parser.Default.FormatCommandLine(commandLineOptions))
-                    {
-                        CreateNoWindow = true,
-                        WorkingDirectory = currentProcess.StartInfo.WorkingDirectory
-                    };
+                var correctArchitectureFileName = originalProcessFileName.Replace(currentProcessArchitecture, processWrapper.Architecture);
+                var processStartInfo = new ProcessStartInfo(currentProcess.MainModule.FileName!.Replace(originalProcessFileName, correctArchitectureFileName), Parser.Default.FormatCommandLine(commandLineOptions))
+                {
+                    CreateNoWindow = true,
+                    WorkingDirectory = currentProcess.StartInfo.WorkingDirectory
+                };
 
-                    using (var process = Process.Start(processStartInfo))
-                    {
-                        if (process is null)
-                        {
-                            Injector.LogMessage("Failed to start process for redirection.");
-                            return 1;
-                        }
-
-                        process.WaitForExit();
-                        return process.ExitCode;
-                    }
+                using var process = Process.Start(processStartInfo);
+                if (process is null)
+                {
+                    Injector.LogMessage("Failed to start process for redirection.");
+                    return 1;
                 }
+
+                process.WaitForExit();
+                return process.ExitCode;
             }
 
-            var settingsFile = string.IsNullOrEmpty(commandLineOptions.SettingsFile) == false
+            var settingsFile = !string.IsNullOrEmpty(commandLineOptions.SettingsFile)
                 ? commandLineOptions.SettingsFile
                 : new TransientSettingsData
                 {
@@ -95,7 +91,7 @@ public static class Program
                 SettingsFile = settingsFile
             };
 
-            if (File.Exists(injectorData.FullAssemblyPath) == false)
+            if (!File.Exists(injectorData.FullAssemblyPath))
             {
                 Injector.LogMessage($"Could not find assembly \"{injectorData.FullAssemblyPath}\".");
                 return 1;

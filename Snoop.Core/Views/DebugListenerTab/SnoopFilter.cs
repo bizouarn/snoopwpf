@@ -8,24 +8,15 @@ using JetBrains.Annotations;
 [Serializable]
 public abstract class SnoopFilter : INotifyPropertyChanged
 {
-    private bool isGrouped;
     private string groupId = string.Empty;
     private bool isDirty;
+    private bool isGrouped;
     private bool isInverse;
-    //protected string _isInverseText = string.Empty;
-
-    public void ResetDirtyFlag()
-    {
-        this.IsDirty = false;
-    }
 
     [XmlIgnore]
     public bool IsDirty
     {
-        get
-        {
-            return this.isDirty;
-        }
+        get => this.isDirty;
 
         protected set
         {
@@ -34,48 +25,30 @@ public abstract class SnoopFilter : INotifyPropertyChanged
         }
     }
 
-    public abstract bool FilterMatches(string? debugLine);
-
-    public virtual bool SupportsGrouping
-    {
-        get
-        {
-            return true;
-        }
-    }
+    public virtual bool SupportsGrouping => true;
 
     public bool IsInverse
     {
-        get
-        {
-            return this.isInverse;
-        }
+        get => this.isInverse;
 
         set
         {
-            if (value != this.isInverse)
+            if (value == this.isInverse)
             {
-                this.isInverse = value;
-                this.RaisePropertyChanged(nameof(this.IsInverse));
-                this.RaisePropertyChanged(nameof(this.IsInverseText));
+                return;
             }
+
+            this.isInverse = value;
+            this.RaisePropertyChanged(nameof(this.IsInverse));
+            this.RaisePropertyChanged(nameof(this.IsInverseText));
         }
     }
 
-    public string IsInverseText
-    {
-        get
-        {
-            return this.isInverse ? "NOT" : string.Empty;
-        }
-    }
+    public string IsInverseText => this.isInverse ? "NOT" : string.Empty;
 
     public bool IsGrouped
     {
-        get
-        {
-            return this.isGrouped;
-        }
+        get => this.isGrouped;
 
         set
         {
@@ -87,10 +60,7 @@ public abstract class SnoopFilter : INotifyPropertyChanged
 
     public virtual string GroupId
     {
-        get
-        {
-            return this.groupId;
-        }
+        get => this.groupId;
 
         set
         {
@@ -100,6 +70,13 @@ public abstract class SnoopFilter : INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public void ResetDirtyFlag()
+    {
+        this.IsDirty = false;
+    }
+
+    public abstract bool FilterMatches(string? debugLine);
 
     [NotifyPropertyChangedInvocator]
     protected void RaisePropertyChanged(string propertyName)

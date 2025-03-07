@@ -26,12 +26,7 @@ public static class StringValueConverter
             return false;
         }
 
-        if (converter.CanConvertFrom(typeof(string)) == false)
-        {
-            return false;
-        }
-
-        return true;
+        return converter.CanConvertFrom(typeof(string)) != false;
     }
 
     public static object? ConvertFromString(Type? targetType, string? value)

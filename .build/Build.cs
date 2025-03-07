@@ -72,7 +72,7 @@ class Build : NukeBuild
         Serilog.Log.Information("NuGet           Version: {0}", NuGetVersion);
     }
 
-    string ProjectName = "Snoop";
+    const string ProjectName = "Snoop";
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -108,15 +108,12 @@ class Build : NukeBuild
 
     AbsolutePath TestResultDirectory => OutputDirectory / "test-results";
 
-    readonly string WixUIExtension = "WixToolset.UI.wixext/5.0.2";
+    const string WixUIExtension = "WixToolset.UI.wixext/5.0.2";
 
     readonly string FenceOutput = "".PadLeft(30, '#');
 
     Target CleanOutput => _ => _
-        .Executes(() =>
-        {
-            ArtifactsDirectory.CreateOrCleanDirectory();
-        });
+        .Executes(ArtifactsDirectory.CreateOrCleanDirectory);
 
     Target Restore => _ => _
         .Executes(() =>
@@ -138,7 +135,7 @@ class Build : NukeBuild
         .DependsOn(XamlStyler)
         .Executes(() =>
         {
-            string toolsPath = string.Empty;
+            var toolsPath = string.Empty;
             try
             {
                 toolsPath = MSBuildToolPathResolver.Resolve(MSBuildVersion.VS2019, MSBuildPlatform.x64);

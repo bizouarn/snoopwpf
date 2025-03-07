@@ -12,21 +12,12 @@ public static class TemplateHelper
             return element;
         }
 
-        if (element is Control { Template: { } } control)
+        return element switch
         {
-            return control.Template.FindName(templatePartName, control);
-        }
-
-        if (element is FrameworkElement fe)
-        {
-            return fe.FindName(templatePartName);
-        }
-
-        if (element is FrameworkContentElement fec)
-        {
-            return fec.FindName(templatePartName);
-        }
-
-        return null;
+            Control { Template: { } } control => control.Template.FindName(templatePartName, control),
+            FrameworkElement fe => fe.FindName(templatePartName),
+            FrameworkContentElement fec => fec.FindName(templatePartName),
+            _ => null
+        };
     }
 }

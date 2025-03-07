@@ -43,12 +43,7 @@ public static class ExceptionHandler
             knownDispatchers.Remove(knownDispatcher);
         }
 
-        var deadKnownDispatchers = knownDispatchers.Where(x => x.IsAlive == false).ToList();
-
-        foreach (var deadKnownDispatcher in deadKnownDispatchers)
-        {
-            knownDispatchers.Remove(deadKnownDispatcher);
-        }
+        knownDispatchers.RemoveAll(x => !x.IsAlive);
     }
 
     private static void UnhandledExceptionHandler(object sender, DispatcherUnhandledExceptionEventArgs e)

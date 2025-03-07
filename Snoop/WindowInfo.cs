@@ -2,9 +2,7 @@ namespace Snoop;
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Snoop.Infrastructure;
 

@@ -67,55 +67,54 @@ public class VisualTreeProvider : NavigationCmdletProvider
     {
         var currentTry = (int)currentTryObj!;
 
-        if (currentTry >= 5)
+        switch (currentTry)
         {
-            return;
-        }
+            case >= 5:
+            case 0
+                when this.IsCurrentlySynchingLastKnownSnoopLocation:
+                return;
+            default:
+                this.IsCurrentlySynchingLastKnownSnoopLocation = true;
 
-        if (currentTry == 0
-            && this.IsCurrentlySynchingLastKnownSnoopLocation)
-        {
-            return;
-        }
-
-        this.IsCurrentlySynchingLastKnownSnoopLocation = true;
-
-        try
-        {
-            // the PSDrive.CurrentLocation gets set, but i couldn't find a way to have it notify
-            // so unfortunately we have to poll :(
-            if (this.PSDriveInfo.CurrentLocation != this.LastKnownSnoopLocation)
-            {
-                var item = this.GetTreeItem(this.PSDriveInfo.CurrentLocation);
-
-                if (item is not null)
+                try
                 {
-                    var data = (Hashtable)this.Host.PrivateData.BaseObject;
-                    var action = (Action<TreeItem>?)data[ShellConstants.LocationChangedActionKey];
-                    action?.Invoke(item);
+                    // the PSDrive.CurrentLocation gets set, but i couldn't find a way to have it notify
+                    // so unfortunately we have to poll :(
+                    if (this.PSDriveInfo.CurrentLocation != this.LastKnownSnoopLocation)
+                    {
+                        var item = this.GetTreeItem(this.PSDriveInfo.CurrentLocation);
+
+                        if (item is not null)
+                        {
+                            var data = (Hashtable)this.Host.PrivateData.BaseObject;
+                            var action = (Action<TreeItem>?)data[ShellConstants.LocationChangedActionKey];
+                            action?.Invoke(item);
+                        }
+                        else
+                        {
+                            // the visual tree changed drastically, we must reset the current location
+                            this.PSDriveInfo.CurrentLocation = string.Empty;
+                        }
+
+                        this.LastKnownSnoopLocation = this.PSDriveInfo.CurrentLocation;
+                    }
                 }
-                else
+                catch
                 {
-                    // the visual tree changed drastically, we must reset the current location
-                    this.PSDriveInfo.CurrentLocation = string.Empty;
+                    this.oneTimeSyncTimer?.Dispose();
+                    this.oneTimeSyncTimer = null;
+
+                    this.StartNewOneTimeSyncTimer(++currentTry);
+                }
+                finally
+                {
+                    this.oneTimeSyncTimer?.Dispose();
+                    this.oneTimeSyncTimer = null;
+
+                    this.IsCurrentlySynchingLastKnownSnoopLocation = false;
                 }
 
-                this.LastKnownSnoopLocation = this.PSDriveInfo.CurrentLocation;
-            }
-        }
-        catch
-        {
-            this.oneTimeSyncTimer?.Dispose();
-            this.oneTimeSyncTimer = null;
-
-            this.StartNewOneTimeSyncTimer(++currentTry);
-        }
-        finally
-        {
-            this.oneTimeSyncTimer?.Dispose();
-            this.oneTimeSyncTimer = null;
-
-            this.IsCurrentlySynchingLastKnownSnoopLocation = false;
+                break;
         }
     }
 
@@ -151,7 +150,7 @@ public class VisualTreeProvider : NavigationCmdletProvider
         var count = 0;
         foreach (var part in parts)
         {
-            foreach (var c in current.Children.ToList())
+            foreach (var c in current.Children.ToArray())
             {
                 var name = c.NodeName();
                 if (name.Equals(part, StringComparison.OrdinalIgnoreCase))
@@ -202,7 +201,7 @@ public class VisualTreeProvider : NavigationCmdletProvider
         var item = this.GetTreeItem(path);
         if (item is not null)
         {
-            foreach (var c in item.Children.ToList())
+            foreach (var c in item.Children.ToArray())
             {
                 var p = c.NodePath();
                 this.GetItem(p);
@@ -238,7 +237,7 @@ public class VisualTreeProvider : NavigationCmdletProvider
 
         foreach (var c in path)
         {
-            if (c == '/' || c == '\\')
+            if (c is '/' or '\\')
             {
                 continue;
             }
@@ -267,7 +266,7 @@ public class VisualTreeProvider : NavigationCmdletProvider
         var item = this.GetTreeItem(path);
         if (item is not null)
         {
-            foreach (var child in item.Children.ToList())
+            foreach (var child in item.Children.ToArray())
             {
                 var name = child.NodeName();
                 var nodePath = child.NodePath();
@@ -301,12 +300,12 @@ internal static class TreeItemExtensions
         if (item.Parent is not null)
         {
             var parent = item.Parent;
-            var similarChildren = parent.Children.ToList()
+            var similarChildren = parent.Children
                 .Where(c => GetName(c).Equals(name, StringComparison.Ordinal))
-                .ToList();
-            if (similarChildren.Count > 1)
+                .ToArray();
+            if (similarChildren.Length > 1)
             {
-                name += similarChildren.IndexOf(item) + 1;
+                name += Array.IndexOf(similarChildren, item) + 1;
             }
         }
 

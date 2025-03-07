@@ -33,7 +33,7 @@ public class ArgbToPartsConverter : IValueConverter
             throw new ArgumentNullException(nameof(parameter));
         }
 
-        var val = value.ToString() ?? string.Empty;
+        var val = value.ToString();
         if (val.Length < 9)
         {
             return new ArgumentException("Expected converter parameter to be a string in the form of #FF102030");

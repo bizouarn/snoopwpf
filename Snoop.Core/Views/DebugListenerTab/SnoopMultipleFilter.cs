@@ -21,24 +21,13 @@ public class SnoopMultipleFilter : SnoopFilter
         return true;
     }
 
-    public override bool SupportsGrouping
-    {
-        get
-        {
-            return false;
-        }
-    }
+    public override bool SupportsGrouping => false;
 
     public override string GroupId
     {
         get
         {
-            if (this.singleFilters.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            return this.singleFilters[0].GroupId;
+            return this.singleFilters.Count == 0 ? string.Empty : this.singleFilters[0].GroupId;
         }
 
 #pragma warning disable INPC021
@@ -49,13 +38,7 @@ public class SnoopMultipleFilter : SnoopFilter
 #pragma warning restore INPC021
     }
 
-    public bool IsValidMultipleFilter
-    {
-        get
-        {
-            return this.singleFilters.Count > 0;
-        }
-    }
+    public bool IsValidMultipleFilter => this.singleFilters.Count > 0;
 
     public void AddFilter(SnoopFilter singleFilter)
     {

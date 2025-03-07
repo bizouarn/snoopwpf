@@ -124,17 +124,12 @@ public class SnoopEnumValuesConverter : IValueConverter
 
     public object? Convert(object? value, Type? targetType, object? parameter, CultureInfo? culture)
     {
-        if (value is Enum)
+        return value switch
         {
-            return Enum.GetValues(value.GetType());
-        }
-
-        if (value is bool)
-        {
-            return new object[] { true, false };
-        }
-
-        return null;
+            Enum => Enum.GetValues(value.GetType()),
+            bool => new object[] { true, false },
+            _ => null
+        };
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -66,10 +66,8 @@ public static class VisualCaptureUtil
         var pngBitmapEncoder = new PngBitmapEncoder();
         pngBitmapEncoder.Frames.Add(BitmapFrame.Create(bitmap));
 
-        using (var fileStream = File.Create(filename))
-        {
-            pngBitmapEncoder.Save(fileStream);
-        }
+        using var fileStream = File.Create(filename);
+        pngBitmapEncoder.Save(fileStream);
     }
 
     /// <summary>

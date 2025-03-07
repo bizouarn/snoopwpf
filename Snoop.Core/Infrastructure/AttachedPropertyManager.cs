@@ -11,12 +11,7 @@ public static class AttachedPropertyManager
     {
         var nextFreeAttachedProperty = GetNextFreeAttachedProperty(target);
 
-        if (nextFreeAttachedProperty is null)
-        {
-            return null;
-        }
-
-        return new AttachedPropertySlot(target, nextFreeAttachedProperty, binding);
+        return nextFreeAttachedProperty is null ? null : new AttachedPropertySlot(target, nextFreeAttachedProperty, binding);
     }
 
     private static DependencyProperty? GetNextFreeAttachedProperty(DependencyObject target)

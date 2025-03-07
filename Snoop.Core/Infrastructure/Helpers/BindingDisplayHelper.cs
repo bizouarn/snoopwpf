@@ -22,14 +22,12 @@ public static class BindingDisplayHelper
     {
         try
         {
-            if (binding is MultiBinding multiBinding)
+            switch (binding)
             {
-                return BuildMultiBindingDescriptiveString(multiBinding.Bindings, propertyNames);
-            }
-
-            if (binding is PriorityBinding priorityBinding)
-            {
-                return BuildMultiBindingDescriptiveString(priorityBinding.Bindings, propertyNames);
+                case MultiBinding multiBinding:
+                    return BuildMultiBindingDescriptiveString(multiBinding.Bindings, propertyNames);
+                case PriorityBinding priorityBinding:
+                    return BuildMultiBindingDescriptiveString(priorityBinding.Bindings, propertyNames);
             }
 
             var propertyValues = new List<string>(propertyNames.Length);

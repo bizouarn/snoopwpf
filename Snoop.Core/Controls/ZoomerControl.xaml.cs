@@ -118,8 +118,6 @@ public partial class ZoomerControl
 
     private void ResetZoomAndTranslation()
     {
-        //Zoom(0, new Point(-this.translation.X, -this.translation.Y));
-        //Zoom(1.0 / zoom.ScaleX, new Point());
         this.zoom.ScaleX = 1.0;
         this.zoom.ScaleY = 1.0;
 

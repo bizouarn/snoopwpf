@@ -21,9 +21,7 @@ public partial class App
     {
         base.OnStartup(e);
 
-        this.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri($"pack://application:,,,/Snoop.Core;component/Icons.xaml") });
-
-        //this.RunInDispatcherAsync(this.SnoopSelf, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        this.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/Snoop.Core;component/Icons.xaml") });
     }
 
     private void SnoopSelf()

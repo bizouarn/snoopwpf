@@ -14,7 +14,7 @@ public static class PathHelper
     public static bool TryFindPathOnPath(string? path, string fileName, [NotNullWhen(true)] out string? foundFullPath)
     {
         foundFullPath = FindPathOnPath(path, fileName);
-        return string.IsNullOrEmpty(foundFullPath) == false;
+        return !string.IsNullOrEmpty(foundFullPath);
     }
 
     public static string? FindPathOnPath(string fileName)

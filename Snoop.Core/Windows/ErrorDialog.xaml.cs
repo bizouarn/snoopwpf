@@ -47,7 +47,7 @@ public partial class ErrorDialog
     /// <returns><c>true</c> if the exception should be marked handled and <c>false</c> if the exception should NOT be marked as handled.</returns>
     public static bool ShowDialog(Exception? exception, string title = "Error occurred", string caption = "An error has occurred", bool exceptionAlreadyHandled = false)
     {
-        LogHelper.WriteLine($"Showing error dialog.");
+        LogHelper.WriteLine("Showing error dialog.");
         LogHelper.WriteLine($"Title:     {title}");
         LogHelper.WriteLine($"Caption:   {caption}");
         LogHelper.WriteLine($"Exception: {exception}");
@@ -74,7 +74,7 @@ public partial class ErrorDialog
 
         var result = dialog.ShowDialog();
 
-        return (result ?? false) == false;
+        return result ?? false;
     }
 
     public static void ShowExceptionMessageBox(Exception exception, string title = "Exception", string message = "")

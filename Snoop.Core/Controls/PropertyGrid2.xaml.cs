@@ -132,12 +132,7 @@ public partial class PropertyGrid2 : INotifyPropertyChanged
     {
         get
         {
-            if (this.target is not null)
-            {
-                return this.target.GetType();
-            }
-
-            return null;
+            return this.target is not null ? this.target.GetType() : null;
         }
     }
 

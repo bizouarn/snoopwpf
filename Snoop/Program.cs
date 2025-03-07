@@ -1,7 +1,6 @@
 namespace Snoop;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -22,7 +21,7 @@ public static class Program
     [STAThread]
     public static int Main(string[] args)
     {
-        Environment.SetEnvironmentVariable(SettingsHelper.SNOOP_INSTALL_PATH_ENV_VAR, Path.GetDirectoryName(EnvironmentEx.CurrentProcessPath), EnvironmentVariableTarget.Process);
+        Environment.SetEnvironmentVariable(SettingsHelper.SNOOPINSTALLPATHENVVAR, Path.GetDirectoryName(EnvironmentEx.CurrentProcessPath), EnvironmentVariableTarget.Process);
 
         var helpWriter = new StringWriter();
 
@@ -33,7 +32,7 @@ public static class Program
                 (InspectCommandLineOptions options) => Inspect(options),
                 (MagnifyCommandLineOptions options) => Magnify(options),
                 (SnoopCommandLineOptions options) => Run(options),
-                errs => ErrorHandler(args, errs.ToList(), helpWriter));
+                errs => ErrorHandler(args, errs.ToArray(), helpWriter));
     }
 
     private static int Inspect(InspectCommandLineOptions options)
@@ -58,8 +57,7 @@ public static class Program
     {
         Debug = options.Debug;
 
-        if (IsConsoleApp == false
-            && options.ShowConsole)
+        if (!IsConsoleApp && options.ShowConsole)
         {
             NativeMethods.AllocConsole();
         }
@@ -68,9 +66,9 @@ public static class Program
         return app.Run();
     }
 
-    private static int ErrorHandler(string[] args, IList<Error> errors, StringWriter helpWriter)
+    private static int ErrorHandler(string[] args, Error[] errors, StringWriter helpWriter)
     {
-        if (errors.Count == 1
+        if (errors.Length == 1
             && errors.All(x => x is NoVerbSelectedError or BadVerbSelectedError))
         {
             var localHelpWriter = new StringWriter();
@@ -78,7 +76,7 @@ public static class Program
 
             return parser.ParseArguments<SnoopCommandLineOptions>(args).MapResult(
                 Run,
-                errs => ErrorHandler(args, errs.ToList(), localHelpWriter));
+                errs => ErrorHandler(args, errs.ToArray(), localHelpWriter));
         }
 
         if (IsConsoleApp)

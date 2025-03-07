@@ -11,7 +11,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using Snoop.AttachedProperties;
-using Snoop.Core;
 
 /// <summary>
 ///     This service allows Snoop to mark certain visuals as visual tree roots of its own UI.
@@ -40,9 +39,9 @@ public static class SnoopPartsRegistry
             return true;
         }
 
-        foreach (var registeredSnoopVisual in registeredSnoopVisualTreeRoots.ToList())
+        foreach (var registeredSnoopVisual in registeredSnoopVisualTreeRoots.ToArray())
         {
-            if (registeredSnoopVisual.TryGetTarget(out var snoopVisual) == false)
+            if (!registeredSnoopVisual.TryGetTarget(out var snoopVisual))
             {
                 registeredSnoopVisualTreeRoots.Remove(registeredSnoopVisual);
                 continue;
@@ -71,8 +70,6 @@ public static class SnoopPartsRegistry
         if (registeredSnoopVisualTreeRoots.Any(x => x.TryGetTarget(out var target) && ReferenceEquals(target, root)) == false)
         {
             registeredSnoopVisualTreeRoots.Add(new(root));
-
-            //ThemeManager.Current.ApplyTheme(Settings.Default.ThemeMode, root);
         }
     }
 

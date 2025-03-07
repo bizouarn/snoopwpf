@@ -49,12 +49,7 @@ public class ProcessWrapper
     {
         var processFromWindowHandle = GetProcessFromWindowHandle(handle);
 
-        if (processFromWindowHandle is null)
-        {
-            return null;
-        }
-
-        return new ProcessWrapper(processFromWindowHandle, handle);
+        return processFromWindowHandle is null ? null : new ProcessWrapper(processFromWindowHandle, handle);
     }
 
     private static Process? GetProcessFromWindowHandle(IntPtr windowHandle)
@@ -135,11 +130,6 @@ public class ProcessWrapper
             versionToParse = version.Substring(0, previewVersionMarkerIndex);
         }
 
-        if (Version.TryParse(versionToParse, out var parsedVersion))
-        {
-            return parsedVersion;
-        }
-
-        return new Version();
+        return Version.TryParse(versionToParse, out var parsedVersion) ? parsedVersion : new Version();
     }
 }

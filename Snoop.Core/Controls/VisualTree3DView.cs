@@ -14,10 +14,6 @@ using Snoop.Infrastructure;
 
 public class VisualTree3DView : Viewport3D
 {
-    private static readonly Pen outlinePen = new(new SolidColorBrush(Color.FromArgb(128, 255, 0, 0)), 2);
-
-    private readonly bool drawOutlines = false;
-    private readonly bool includeEmptyVisuals = false;
     private readonly TrackballBehavior? trackballBehavior;
     private readonly ScaleTransform3D zScaleTransform;
 
@@ -91,11 +87,6 @@ public class VisualTree3DView : Viewport3D
         if (visual is Viewport3D viewport3D)
         {
             bounds = new Rect(viewport3D.RenderSize);
-        }
-
-        if (this.includeEmptyVisuals)
-        {
-            bounds.Union(VisualTreeHelper.GetDescendantBounds(visual));
         }
 
         if (!bounds.IsEmpty && bounds.Width > 0 && bounds.Height > 0)
@@ -181,11 +172,6 @@ public class VisualTree3DView : Viewport3D
         {
             var drawing = VisualTreeHelper.GetDrawing(visual);
 
-            if (this.drawOutlines)
-            {
-                bounds.Inflate(outlinePen.Thickness / 2, outlinePen.Thickness / 2);
-            }
-
             var offsetMatrix = new Matrix(1, 0, 0, 1, -bounds.Left, -bounds.Top);
             var offsetMatrixTransform = new MatrixTransform(offsetMatrix);
             offsetMatrixTransform.FreezeIfPossible();
@@ -195,12 +181,6 @@ public class VisualTree3DView : Viewport3D
             using (var drawingContext = drawingVisual.RenderOpen())
             {
                 drawingContext.PushTransform(offsetMatrixTransform);
-
-                if (this.drawOutlines)
-                {
-                    drawingContext.DrawRectangle(null, outlinePen, bounds);
-                }
-
                 drawingContext.DrawDrawing(drawing);
                 drawingContext.Pop();
             }

@@ -13,12 +13,7 @@ public class FreezeFreezablesDiagnosticProvider : DiagnosticProvider
 
     protected override IEnumerable<DiagnosticItem> GetDiagnosticItemsInternal(TreeItem treeItem)
     {
-        if (treeItem.Target is not FrameworkElement frameworkElement)
-        {
-            return Enumerable.Empty<DiagnosticItem>();
-        }
-
-        return this.AnalyzeResourcesRecursive(frameworkElement.Resources, treeItem);
+        return treeItem.Target is not FrameworkElement frameworkElement ? Enumerable.Empty<DiagnosticItem>() : this.AnalyzeResourcesRecursive(frameworkElement.Resources, treeItem);
     }
 
     private IEnumerable<DiagnosticItem> AnalyzeResourcesRecursive(ResourceDictionary dictionary, TreeItem treeItem)
@@ -53,8 +48,7 @@ public class FreezeFreezablesDiagnosticProvider : DiagnosticProvider
                     new(this,
                         "Freeze freezables",
                         $"Freezing the resource '{resourceKey}' can save memory and increase performance.",
-                        DiagnosticArea.Performance,
-                        DiagnosticLevel.Info)
+                        DiagnosticArea.Performance)
                     {
                         TreeItem = treeItem,
                         Dispatcher = freezable.Dispatcher,

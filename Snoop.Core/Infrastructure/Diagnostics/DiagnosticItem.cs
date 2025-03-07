@@ -19,9 +19,9 @@ public class DiagnosticItem : INotifyPropertyChanged
 
     public DiagnosticProvider DiagnosticProvider { get; }
 
-    public DiagnosticArea Area { get; set; }
+    public DiagnosticArea Area { get; }
 
-    public DiagnosticLevel Level { get; set; }
+    public DiagnosticLevel Level { get; }
 
     public string Name { get; }
 

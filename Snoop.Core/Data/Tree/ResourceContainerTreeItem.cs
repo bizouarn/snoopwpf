@@ -19,7 +19,7 @@ public abstract class ResourceContainerTreeItem : TreeItem
 
     protected override void ReloadCore()
     {
-        var resourceDictionaries = this.ResourceDictionary.ToList();
+        var resourceDictionaries = this.ResourceDictionary.ToArray();
 
         foreach (var resourceDictionary in resourceDictionaries)
         {

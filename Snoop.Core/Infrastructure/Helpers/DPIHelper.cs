@@ -3,7 +3,6 @@ namespace Snoop.Infrastructure.Helpers;
 using System;
 using System.Windows;
 using System.Windows.Interop;
-using System.Windows.Media;
 
 public static class DPIHelper
 {
@@ -16,11 +15,6 @@ public static class DPIHelper
     {
         var hwndSource = HwndSource.FromHwnd(hwnd);
 
-        if (hwndSource?.CompositionTarget is null)
-        {
-            return devicePoint;
-        }
-
-        return hwndSource.CompositionTarget.TransformFromDevice.Transform(devicePoint);
+        return hwndSource?.CompositionTarget is null ? devicePoint : hwndSource.CompositionTarget.TransformFromDevice.Transform(devicePoint);
     }
 }

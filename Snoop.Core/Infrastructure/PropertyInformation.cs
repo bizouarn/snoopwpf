@@ -121,6 +121,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
     /// </summary>
     /// <param name="target">target object being shown in the property grid</param>
     /// <param name="property">the property around which we are constructing this PropertyInformation object</param>
+    /// <param name="dependencyProperty">Dependency property</param>
     /// <param name="binding">the <see cref="BindingBase"/> from which the value should be retrieved</param>
     /// <param name="propertyDisplayName">the display name for the property that goes in the name column</param>
     public PropertyInformation(object target, PropertyDescriptor? property, DependencyProperty? dependencyProperty, BindingBase binding, string propertyDisplayName)
@@ -158,6 +159,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
     /// <param name="component">the collection</param>
     /// <param name="displayName">the display name that goes in the name column, i.e. this[x]</param>
     /// <param name="value">the value</param>
+    /// <param name="isCopyable">Can copy PropertyInformation</param>
     public PropertyInformation(object target, object? component, string displayName, object? value, bool isCopyable = false)
         : this(target, null, displayName, displayName)
     {
@@ -196,8 +198,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
 
     protected virtual void OnValueChanged(DependencyPropertyChangedEventArgs e)
     {
-        if (this.isRunning == false
-            || this.ignoreUpdate)
+        if (!this.isRunning || this.ignoreUpdate)
         {
             this.UpdateValueSource();
             return;
@@ -207,7 +208,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
 
         if (this.breakOnChange)
         {
-            if (Debugger.IsAttached == false)
+            if (!Debugger.IsAttached)
             {
                 Debugger.Launch();
             }
@@ -215,7 +216,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
             Debugger.Break();
         }
 
-        this.HasChangedRecently = (e.OldValue?.Equals(e.NewValue) ?? e.OldValue == e.NewValue) == false;
+        this.HasChangedRecently = !(e.OldValue?.Equals(e.NewValue) ?? e.OldValue == e.NewValue);
 
         if (this.changeTimer is null)
         {
@@ -224,13 +225,13 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
                 Interval = TimeSpan.FromSeconds(1.5)
             };
             this.changeTimer.Tick += this.HandleChangeExpiry;
-            this.changeTimer.Start();
         }
         else
         {
             this.changeTimer.Stop();
-            this.changeTimer.Start();
         }
+
+        this.changeTimer.Start();
     }
 
     private void HandleChangeExpiry(object? sender, EventArgs e)
@@ -248,12 +249,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
         get
         {
             var value = this.Value;
-            if (value is not null)
-            {
-                return value.ToString() ?? string.Empty;
-            }
-
-            return string.Empty;
+            return value?.ToString() ?? string.Empty;
         }
 
         set
@@ -300,15 +296,11 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
 
                 default:
                 {
-                    if (this.Target is DependencyObject dependencyObject)
+                    if (this.Target is DependencyObject dependencyObject && TypeMightHaveResourceKey(this.property.PropertyType))
                     {
-                        // Cache the resource key for this item if not cached already. This could be done for more types, but would need to optimize perf.
-                        if (TypeMightHaveResourceKey(this.property.PropertyType))
-                        {
-                            var resourceKey = ResourceKeyCache.Instance.GetOrAddKey(dependencyObject, value);
-
-                            return resourceKey == DependencyProperty.UnsetValue ? null : resourceKey;
-                        }
+                            // Cache the resource key for this item if not cached already. This could be done for more types, but would need to optimize perf.
+                        var resourceKey = ResourceKeyCache.Instance.GetOrAddKey(dependencyObject, value);
+                        return resourceKey == DependencyProperty.UnsetValue ? null : resourceKey;
                     }
 
                     break;
@@ -323,13 +315,8 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
     {
         get
         {
-            var value = this.Value;
-            if (value is null)
-            {
-                return string.Empty;
-            }
-
-            var stringValue = value.ToString() ?? string.Empty;
+            var value = this.Value ?? string.Empty;
+            var stringValue = value.ToString();
 
             var valueType = value.GetType();
             var stringValueIsTypeToString = stringValue.Equals(valueType.ToString(), StringComparison.Ordinal);
@@ -368,28 +355,26 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
                 stringValue = "Transparent";
             }
 
+            // Display both the value and the resource key, if there's a key for this property.
+            if (ResourceKeyHelper.IsValidResourceKey(this.ResourceKey))
             {
-                // Display both the value and the resource key, if there's a key for this property.
-                if (ResourceKeyHelper.IsValidResourceKey(this.ResourceKey))
-                {
-                    return $"{stringValue} [{this.ResourceKey}]";
-                }
-
-                // if the value comes from a Binding, show the binding details in [] brackets
-                if (this.IsExpression
-                    && this.Binding is { } binding)
-                {
-                    var bindingDescriptiveString = BindingDisplayHelper.BuildBindingDescriptiveString(binding);
-
-                    if (stringValueIsTypeToString)
-                    {
-                        return $"[Binding] {bindingDescriptiveString}";
-                    }
-
-                    return $"{stringValue} [Binding] {bindingDescriptiveString}";
-                }
+                return $"{stringValue} [{this.ResourceKey}]";
             }
 
+            // if the value comes from a Binding, show the binding details in [] brackets
+            if (this.IsExpression
+                && this.Binding is { } binding)
+            {
+                var bindingDescriptiveString = BindingDisplayHelper.BuildBindingDescriptiveString(binding);
+
+                if (stringValueIsTypeToString)
+                {
+                    return $"[Binding] {bindingDescriptiveString}";
+                }
+
+                return $"{stringValue} [Binding] {bindingDescriptiveString}";
+            }
+            
             if (value is Setter setter)
             {
                 stringValue = "Setter ";
@@ -398,13 +383,13 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
                 {
                     stringValue += $"Property: {setter.Property.Name}";
 
-                    if (string.IsNullOrEmpty(setter.TargetName) == false)
+                    if (!string.IsNullOrEmpty(setter.TargetName))
                     {
                         stringValue += "; ";
                     }
                 }
 
-                if (string.IsNullOrEmpty(setter.TargetName) == false)
+                if (!string.IsNullOrEmpty(setter.TargetName))
                 {
                     stringValue += $"Target: {setter.TargetName}";
                 }
@@ -517,7 +502,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
                 return false;
             }
 
-            return this.property.IsReadOnly == false;
+            return !this.property.IsReadOnly;
         }
     }
 
@@ -650,8 +635,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
                 return this.dependencyProperty;
             }
 
-            if (this.property is not null
-                && this.wasTriedAsDependencyProperty == false)
+            if (this.property is not null && !this.wasTriedAsDependencyProperty)
             {
                 this.wasTriedAsDependencyProperty = true;
                 this.dependencyProperty = DependencyPropertyDescriptor.FromProperty(this.property)?.DependencyProperty;
@@ -699,7 +683,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
                 this.isDatabound = true;
 
                 if (expression.HasError
-                    || (expression.Status != BindingStatus.Active && !(expression is PriorityBindingExpression)))
+                    || (expression.Status != BindingStatus.Active && expression is not PriorityBindingExpression))
                 {
                     this.isInvalidBinding = true;
 
@@ -749,8 +733,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
 
     public void UpdateBindingError()
     {
-        if (this.IsDatabound == false
-            || this.IsInvalidBinding == false)
+        if (!this.IsDatabound || !this.IsInvalidBinding)
         {
             return;
         }
@@ -821,12 +804,10 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
         if (obj is FrameworkElement
             or FrameworkContentElement)
         {
+            const string propertyName = "DefaultStyleKey";
+            if (obj.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) is not null)
             {
-                const string propertyName = "DefaultStyleKey";
-                if (obj.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) is not null)
-                {
-                    properties.Add(new(obj, TypeDescriptor.CreateProperty(obj.GetType(), propertyName, typeof(Style)), propertyName, propertyName));
-                }
+                properties.Add(new(obj, TypeDescriptor.CreateProperty(obj.GetType(), propertyName, typeof(Style)), propertyName, propertyName));
             }
         }
 
@@ -870,7 +851,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
                     continue;
                 }
 
-                var info = new PropertyInformation(item, collection, "this[" + index + "]", item)
+                var info = new PropertyInformation(item, collection, $"this[{index}]", item)
                 {
                     IsCollectionEntry = true,
                     CollectionEntryIndexOrKey = index
@@ -895,17 +876,15 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
             return null;
         }
 
-        {
-            var key = ResourceKeyCache.Instance.GetKey(obj);
+        var key = ResourceKeyCache.Instance.GetKey(obj);
 
-            if (ResourceKeyHelper.IsValidResourceKey(key))
+        if (ResourceKeyHelper.IsValidResourceKey(key))
+        {
+            var prop = new PropertyInformation(key!, null, "x:Key", key!, isCopyable: true);
+            return new List<PropertyInformation>
             {
-                var prop = new PropertyInformation(key!, null, "x:Key", key!, isCopyable: true);
-                return new List<PropertyInformation>
-                {
-                    prop
-                };
-            }
+                prop
+            };
         }
 
         if (obj is string
@@ -934,7 +913,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
                 new(obj, null, "LiveSetting", automationPeer.GetLiveSetting(), isCopyable: true),
 #endif
                 new(obj, null, "LocalizedControlType", automationPeer.GetLocalizedControlType(), isCopyable: true),
-                new(obj, null, "Orientation", automationPeer.GetOrientation(), isCopyable: true),
+                new(obj, null, "Orientation", automationPeer.GetOrientation(), isCopyable: true)
             };
 
             var supportedPatterns = new List<string>();
@@ -976,18 +955,6 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
             }
             catch (AmbiguousMatchException)
             {
-                // if we get an AmbiguousMatchException, the user has probably declared a property that hides a property in an ancestor
-                // see issue 6258 (http://snoopwpf.codeplex.com/workitem/6258)
-                //
-                // public class MyButton : Button
-                // {
-                //     public new double? Width
-                //     {
-                //         get { return base.Width; }
-                //         set { base.Width = value.Value; }
-                //     }
-                // }
-
                 onlyUseTypeForProperties = true;
                 var properties = TypeDescriptor.GetProperties(currentObjType, attributes);
 
@@ -1004,13 +971,7 @@ public class PropertyInformation : DependencyObject, IComparable, INotifyPropert
     {
         foreach (var newProperty in newProperties)
         {
-            var newPropertyDescriptor = newProperty as PropertyDescriptor;
-            if (newPropertyDescriptor is null)
-            {
-                continue;
-            }
-
-            if (!allProperties.Contains(newPropertyDescriptor))
+            if (newProperty is PropertyDescriptor newPropertyDescriptor && !allProperties.Contains(newPropertyDescriptor))
             {
                 allProperties.Add(newPropertyDescriptor);
             }

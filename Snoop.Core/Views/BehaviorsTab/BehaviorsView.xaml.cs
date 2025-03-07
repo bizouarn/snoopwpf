@@ -23,8 +23,8 @@ public partial class BehaviorsView
 
     public bool IsSelected
     {
-        get { return (bool)this.GetValue(IsSelectedProperty); }
-        set { this.SetValue(IsSelectedProperty, value); }
+        get => (bool)this.GetValue(IsSelectedProperty);
+        set => this.SetValue(IsSelectedProperty, value);
     }
 
     private static void OnIsSelectedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -37,8 +37,8 @@ public partial class BehaviorsView
 
     public object RootTarget
     {
-        get { return this.GetValue(RootTargetProperty); }
-        set { this.SetValue(RootTargetProperty, value); }
+        get => this.GetValue(RootTargetProperty);
+        set => this.SetValue(RootTargetProperty, value);
     }
 
     private static void OnRootTargetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -51,16 +51,16 @@ public partial class BehaviorsView
 
     public ObservableCollection<object>? Behaviors
     {
-        get { return (ObservableCollection<object>?)this.GetValue(BehaviorsProperty); }
-        set { this.SetValue(BehaviorsProperty, value); }
+        get => (ObservableCollection<object>?)this.GetValue(BehaviorsProperty);
+        set => this.SetValue(BehaviorsProperty, value);
     }
 
     private static readonly DependencyProperty SelectedBehaviorProperty = DependencyProperty.Register(nameof(SelectedBehavior), typeof(object), typeof(BehaviorsView), new PropertyMetadata(default(object)));
 
     public object? SelectedBehavior
     {
-        get { return this.GetValue(SelectedBehaviorProperty); }
-        set { this.SetValue(SelectedBehaviorProperty, value); }
+        get => this.GetValue(SelectedBehaviorProperty);
+        set => this.SetValue(SelectedBehaviorProperty, value);
     }
 
     private static readonly DependencyPropertyKey HasBehaviorsPropertyKey = DependencyProperty.RegisterReadOnly(nameof(HasBehaviors), typeof(bool), typeof(BehaviorsView), new FrameworkPropertyMetadata(default(bool)));
@@ -69,8 +69,8 @@ public partial class BehaviorsView
 
     public bool HasBehaviors
     {
-        get { return (bool)this.GetValue(HasBehaviorsProperty); }
-        protected set { this.SetValue(HasBehaviorsPropertyKey, value); }
+        get => (bool)this.GetValue(HasBehaviorsProperty);
+        protected set => this.SetValue(HasBehaviorsPropertyKey, value);
     }
 
     private void HandleLoaded(object sender, RoutedEventArgs routedEventArgs)

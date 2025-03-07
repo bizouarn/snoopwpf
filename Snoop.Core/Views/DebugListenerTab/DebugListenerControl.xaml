@@ -27,7 +27,7 @@
                 <TextBlock Text="Start Listening" />
             </CheckBox>
 
-            <StackPanel Grid.Column="1"
+            <StackPanel Grid.Row="0" Grid.Column="1"
                         Orientation="Horizontal">
                 <TextBlock Margin="0 0 10 0"
                            VerticalAlignment="Center"
@@ -65,7 +65,7 @@
             </StackPanel>
 
             <StackPanel Grid.Row="1"
-                        Grid.ColumnSpan="2"
+                        Grid.ColumnSpan="2" Grid.Column="0"
                         Margin="10 0 10 10"
                         Orientation="Horizontal">
                 <Button Name="buttonClear"

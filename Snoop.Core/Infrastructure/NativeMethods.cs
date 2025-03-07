@@ -62,7 +62,7 @@ public static class NativeMethods
         {
             GetWindowThreadProcessId(rootWindow, out var processId);
 
-            if (map.TryGetValue(processId, out var windows) == false)
+            if (!map.TryGetValue(processId, out var windows))
             {
                 windows = new List<IntPtr>();
                 map.Add(processId, windows);
@@ -175,7 +175,7 @@ public static class NativeMethods
         I386 = 0x14C,
         AMD64 = 0x8664,
         ARM = 0x1c0,
-        ARM64 = 0xAA64,
+        ARM64 = 0xAA64
     }
 
     [DllImport("kernel32.dll", SetLastError = true)]
@@ -198,102 +198,59 @@ public static class NativeMethods
 
     public static string GetArchitecture(Process process)
     {
-        using (var processHandle = OpenProcess(process, ProcessAccessFlags.QueryLimitedInformation))
+        using var processHandle = OpenProcess(process, ProcessAccessFlags.QueryLimitedInformation);
+        if (processHandle.IsInvalid)
         {
-            if (processHandle.IsInvalid)
-            {
-                throw new Exception("Could not query process information.");
-            }
-
-            try
-            {
-                if (IsWow64Process2(processHandle.DangerousGetHandle(), out var processMachine, out var nativeMachine) == false)
-                {
-                    throw new Win32Exception();
-                }
-
-                var arch = processMachine == 0
-                    ? nativeMachine
-                    : processMachine;
-
-                switch (arch)
-                {
-                    case ImageFileMachine.I386:
-                        return "x86";
-
-                    case ImageFileMachine.AMD64:
-                        return "x64";
-
-                    case ImageFileMachine.ARM:
-                        return "ARM";
-
-                    case ImageFileMachine.ARM64:
-                        return "ARM64";
-
-                    default:
-                        return "x86";
-                }
-            }
-            catch (EntryPointNotFoundException)
-            {
-                if (IsWow64Process(processHandle.DangerousGetHandle(), out var isWow64) == false)
-                {
-                    throw new Win32Exception();
-                }
-
-                switch (isWow64)
-                {
-                    case true when Environment.Is64BitOperatingSystem:
-                        return "x86";
-
-                    case false when Environment.Is64BitOperatingSystem:
-                        return "x64";
-
-                    default:
-                        return "x86";
-                }
-            }
-        }
-    }
-
-    // see https://msdn.microsoft.com/en-us/library/windows/desktop/ms684139%28v=vs.85%29.aspx
-    private static bool IsWow64Process(Process process)
-    {
-        if (Environment.Is64BitOperatingSystem == false)
-        {
-            return false;
+            throw new Exception("Could not query process information.");
         }
 
-        // if this method is not available in your version of .NET, use GetNativeSystemInfo via P/Invoke instead
-        using (var processHandle = OpenProcess(process, ProcessAccessFlags.QueryLimitedInformation))
+        try
         {
-            if (processHandle.IsInvalid)
-            {
-                throw new Exception("Could not query process information.");
-            }
-
-            if (IsWow64Process(processHandle.DangerousGetHandle(), out var isWow64) == false)
+            if (!IsWow64Process2(processHandle.DangerousGetHandle(), out var processMachine, out var nativeMachine))
             {
                 throw new Win32Exception();
             }
 
-            return isWow64 == false;
+            var arch = processMachine == 0
+                ? nativeMachine
+                : processMachine;
+
+            return arch switch
+            {
+                ImageFileMachine.I386 => "x86",
+                ImageFileMachine.AMD64 => "x64",
+                ImageFileMachine.ARM => "ARM",
+                ImageFileMachine.ARM64 => "ARM64",
+                _ => "x86"
+            };
+        }
+        catch (EntryPointNotFoundException)
+        {
+            if (!IsWow64Process(processHandle.DangerousGetHandle(), out var isWow64))
+            {
+                throw new Win32Exception();
+            }
+
+            return isWow64 switch
+            {
+                true when Environment.Is64BitOperatingSystem => "x86",
+                false when Environment.Is64BitOperatingSystem => "x64",
+                _ => "x86"
+            };
         }
     }
 
     public static bool IsProcessElevated(Process process)
     {
-        using (var processHandle = OpenProcess(process, ProcessAccessFlags.QueryInformation))
+        using var processHandle = OpenProcess(process, ProcessAccessFlags.QueryInformation);
+        if (processHandle.IsInvalid)
         {
-            if (processHandle.IsInvalid)
-            {
-                var error = Marshal.GetLastWin32Error();
+            var error = Marshal.GetLastWin32Error();
 
-                return error == ERROR_ACCESS_DENIED;
-            }
-
-            return false;
+            return error == ERROR_ACCESS_DENIED;
         }
+
+        return false;
     }
 
     /// <summary>
@@ -396,7 +353,6 @@ public static class NativeMethods
         return sb.ToString();
     }
 
-    [Flags]
     public enum ProcessAccessFlags : uint
     {
         All = 0x001F0FFF,
@@ -436,7 +392,8 @@ public static class NativeMethods
 
         foreach (ProcessModule? mod in Process.GetCurrentProcess().Modules)
         {
-            if (mod?.ModuleName is null
+            if (mod is null
+                || mod.ModuleName is null
                 || mod.FileName is null)
             {
                 continue;
@@ -447,7 +404,7 @@ public static class NativeMethods
             {
                 LogHelper.WriteLine($"Checking module \"{moduleName}\" with base address \"{mod.BaseAddress}\" for procaddress of \"{procName}\"...");
 
-                var procAddress = GetProcAddress(mod!.BaseAddress, procName).ToInt64();
+                var procAddress = GetProcAddress(mod.BaseAddress, procName).ToInt64();
 
                 if (procAddress != 0)
                 {
@@ -472,17 +429,18 @@ public static class NativeMethods
     {
         foreach (ProcessModule? mod in targetProcess.Modules)
         {
-            if (mod?.ModuleName is null
-                || mod?.FileName is null)
+            if (mod is null
+                || mod.ModuleName is null
+                || mod.FileName is null)
             {
                 continue;
             }
 
-            if (mod!.ModuleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase)
-                || mod!.FileName.Equals(moduleName, StringComparison.OrdinalIgnoreCase))
+            if (mod.ModuleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase)
+                || mod.FileName.Equals(moduleName, StringComparison.OrdinalIgnoreCase))
             {
-                LogHelper.WriteLine($"Found module \"{moduleName}\" with base address \"{mod!.BaseAddress}\".");
-                return mod!.BaseAddress;
+                LogHelper.WriteLine($"Found module \"{moduleName}\" with base address \"{mod.BaseAddress}\".");
+                return mod.BaseAddress;
             }
         }
 
@@ -516,20 +474,8 @@ public static class NativeMethods
     public static IntPtr GetWindowUnderMouse()
     {
         var pt = default(POINT);
-        if (GetCursorPos(ref pt))
-        {
-            return WindowFromPoint(pt);
-        }
-
-        return IntPtr.Zero;
+        return GetCursorPos(ref pt) ? WindowFromPoint(pt) : IntPtr.Zero;
     }
-
-    //public static System.Windows.Rect GetWindowRect(IntPtr hwnd)
-    //{
-    //  RECT rect = new RECT();
-    //  GetWindowRect(hwnd, out rect);
-    //  return new System.Windows.Rect(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
-    //}
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -717,7 +663,7 @@ public static class NativeMethods
         // a secure screen saver may be running.
         if (!returnValue)
         {
-            System.Diagnostics.Debug.WriteLine("GetPhysicalCursorPos failed!");
+            Debug.WriteLine("GetPhysicalCursorPos failed!");
             pt.X = 0;
             pt.Y = 0;
         }
@@ -792,7 +738,7 @@ public struct WINDOWPLACEMENT
 
 public enum Wait
 {
-    INFINITE = -1,
+    INFINITE = -1
 }
 
 public enum WaitResult
@@ -812,31 +758,17 @@ public static class ConsoleHelper
     /// </summary>
     public static void AttachConsoleToParentProcessOrAllocateNewOne()
     {
-        if (NativeMethods.AttachConsole(NativeMethods.ATTACH_PARENT_PROCESS) == false
+        if (!NativeMethods.AttachConsole(NativeMethods.ATTACH_PARENT_PROCESS)
             && Marshal.GetLastWin32Error() == NativeMethods.ERROR_ACCESS_DENIED)
         {
             // A console was not allocated, so we need to make one.
-            if (NativeMethods.FreeConsole() == false)
-            {
-                Trace.WriteLine("Console could not be freed.");
-            }
-            else
-            {
-                Trace.WriteLine("Console freed.");
-            }
+            Console.WriteLine(!NativeMethods.FreeConsole() ? "Console could not be freed." : "Console freed.");
 
-            if (NativeMethods.AttachConsole(NativeMethods.ATTACH_PARENT_PROCESS) == false)
-            {
-                Trace.WriteLine($"Could not attach to parent process console. Error = {Marshal.GetLastWin32Error()}");
-            }
-            else
-            {
-                Trace.WriteLine("Console attached to parent process.");
-            }
+            Console.WriteLine(!NativeMethods.AttachConsole(NativeMethods.ATTACH_PARENT_PROCESS) ? $"Could not attach to parent process console. Error = {Marshal.GetLastWin32Error()}" : "Console attached to parent process.");
         }
         else
         {
-            Trace.WriteLine("Console attached to parent process or process is a standalone console application.");
+            Console.WriteLine("Console attached to parent process or process is a standalone console application.");
         }
     }
 }
@@ -850,7 +782,6 @@ public static class LogHelper
 
     public static string WriteLine(string message)
     {
-        Trace.WriteLine(message);
         Console.WriteLine(message);
 
         return message;

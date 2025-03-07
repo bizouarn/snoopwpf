@@ -27,22 +27,13 @@ public class ObjectToStringConverter : IValueConverter
 
     public string Convert(object value)
     {
-        switch (value)
+        return value switch
         {
-            case null:
-                return "{null}";
-
-            case FrameworkElement item
-                when string.IsNullOrEmpty(item.Name) == false:
-                return $"{item.Name} {FormattedTypeName(item)}";
-
-            case RoutedCommand item
-                when string.IsNullOrEmpty(item.Name) == false:
-                return $"{item.Name} {FormattedTypeName(item)}";
-
-            default:
-                return FormattedTypeName(value);
-        }
+            null => "{null}",
+            FrameworkElement item when !string.IsNullOrEmpty(item.Name) => $"{item.Name} {FormattedTypeName(item)}",
+            RoutedCommand item when !string.IsNullOrEmpty(item.Name) => $"{item.Name} {FormattedTypeName(item)}",
+            _ => FormattedTypeName(value)
+        };
     }
 
     private static string FormattedTypeName(object item)

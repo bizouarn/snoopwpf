@@ -11,12 +11,7 @@ public static class SelectionHighlightFactory
     {
         var uiElement = FindUIElement(dependencyObject);
 
-        if (uiElement is null)
-        {
-            return null;
-        }
-
-        return CreateAndAttachSelectionHighlightAdorner(uiElement);
+        return uiElement is null ? null : CreateAndAttachSelectionHighlightAdorner(uiElement);
     }
 
     private static IDisposable? CreateAndAttachSelectionHighlightAdorner(UIElement uiElement)

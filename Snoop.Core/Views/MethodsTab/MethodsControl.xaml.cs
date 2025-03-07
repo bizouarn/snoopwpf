@@ -47,7 +47,7 @@ public partial class MethodsControl
     {
         if (!this.IsSelected
             || !this.checkBoxUseDataContext.IsChecked.HasValue
-            || !(this.RootTarget is FrameworkElement))
+            || this.RootTarget is not FrameworkElement)
         {
             return;
         }

@@ -19,7 +19,7 @@ public partial class SettingsView
         nameof(Settings.Default.EnableDiagnostics),
         nameof(Settings.Default.GlobalHotKey),
         nameof(Settings.Default.ILSpyPath),
-        nameof(Settings.Default.StartAppChooserMinimized),
+        nameof(Settings.Default.StartAppChooserMinimized)
     };
 
     public static readonly DependencyProperty PropertiesProperty = DependencyProperty.Register(nameof(Properties), typeof(ObservableCollection<PropertyInformation>), typeof(SettingsView), new PropertyMetadata(default(ObservableCollection<PropertyInformation>)));

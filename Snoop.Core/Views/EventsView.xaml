@@ -12,7 +12,6 @@
       xmlns:d="http://schemas.microsoft.com/expression/interactivedesigner/2006"
       xmlns:infrastructure="clr-namespace:Snoop.Infrastructure"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:snoop="clr-namespace:Snoop"
       xmlns:views="clr-namespace:Snoop.Views"
       x:Name="Events"
       MinWidth="0"

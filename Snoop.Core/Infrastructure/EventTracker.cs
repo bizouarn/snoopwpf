@@ -6,11 +6,9 @@
 namespace Snoop.Infrastructure;
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -121,8 +119,7 @@ public class EventTracker : INotifyPropertyChanged, IComparable, IDisposable
     #region IComparable Members
     public int CompareTo(object? obj)
     {
-        var otherTracker = obj as EventTracker;
-        if (otherTracker is null)
+        if (obj is not EventTracker otherTracker)
         {
             return 1;
         }

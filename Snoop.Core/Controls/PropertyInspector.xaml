@@ -9,7 +9,6 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="clr-namespace:Snoop.Controls"
       xmlns:infrastructure="clr-namespace:Snoop.Infrastructure"
-      xmlns:snoop="clr-namespace:Snoop"
       xmlns:snoopwpf="clr-namespace:Snoop.Converters"
       x:Name="propertyInspector"
       MinWidth="0"

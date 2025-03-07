@@ -6,15 +6,9 @@
 
 #nullable disable
 
-using System.Windows.Shapes;
 using System.Windows.Controls;
-using System.Diagnostics;
-using System.Threading;
-
 using System.Windows;
 using System.Windows.Media;
-using MS.Internal;
-
 using System;
 
 namespace Snoop.Themes;
@@ -39,7 +33,7 @@ public sealed class SystemDropShadowChrome : Decorator
     /// </summary>
     public static readonly DependencyProperty ColorProperty =
         DependencyProperty.Register(
-            "Color",
+            nameof(Color),
             typeof(Color),
             typeof(SystemDropShadowChrome),
             new FrameworkPropertyMetadata(
@@ -61,7 +55,7 @@ public sealed class SystemDropShadowChrome : Decorator
     /// </summary>
     public static readonly DependencyProperty CornerRadiusProperty =
         DependencyProperty.Register(
-            "CornerRadius",
+            nameof(CornerRadius),
             typeof(CornerRadius),
             typeof(SystemDropShadowChrome),
             new FrameworkPropertyMetadata(

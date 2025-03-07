@@ -811,23 +811,29 @@ public sealed partial class SnoopUI : INotifyPropertyChanged
 
         this.TreeItems.Clear();
 
-        // cplotts todo: we've got to come up with a better way to do this.
-        if (this.filter == "Clear any filter applied to the tree view")
+        switch (this.filter)
         {
-            this.SetFilter(string.Empty);
-        }
-        else if (this.filter == "Show only elements with binding errors")
-        {
-            this.FilterBindings(this.RootTreeItem!);
-        }
-        else if (this.filter.Length == 0)
-        {
-            this.TreeItems.Add(this.SystemResourcesTreeItem!);
-            this.TreeItems.Add(this.RootTreeItem!);
-        }
-        else
-        {
-            this.FilterTree(this.RootTreeItem!, this.filter.ToLower());
+            // cplotts todo: we've got to come up with a better way to do this.
+            case "Clear any filter applied to the tree view":
+                this.SetFilter(string.Empty);
+                break;
+            case "Show only elements with binding errors":
+                this.FilterBindings(this.RootTreeItem!);
+                break;
+            default:
+            {
+                if (this.filter.Length == 0)
+                {
+                    this.TreeItems.Add(this.SystemResourcesTreeItem!);
+                    this.TreeItems.Add(this.RootTreeItem!);
+                }
+                else
+                {
+                    this.FilterTree(this.RootTreeItem!, this.filter.ToLower());
+                }
+
+                break;
+            }
         }
     }
 

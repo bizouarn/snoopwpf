@@ -29,11 +29,6 @@ public sealed class DiagnosticContext : IDisposable, INotifyPropertyChanged
         this.DiagnosticProviders.Add(new NonVirtualizedListsDiagnosticProvider());
         this.DiagnosticProviders.Add(new UnresolvedDynamicResourceDiagnosticProvider());
         this.DiagnosticProviders.Add(new BindingLeakDiagnosticProvider());
-#if USE_WPF_BINDING_DIAG
-        // todo: add providers
-        //this.DiagnosticProviders.Add(new BindingDiagnosticProvider());
-        //System.Windows.Diagnostics.ResourceDictionaryDiagnostics.StaticResourceResolved += this.ResourceDictionaryDiagnosticsOnStaticResourceResolved;
-#endif
 
         foreach (var diagnosticProvider in this.DiagnosticProviders)
         {
@@ -69,7 +64,7 @@ public sealed class DiagnosticContext : IDisposable, INotifyPropertyChanged
 
     public void TreeItemDisposed(TreeItem treeItem)
     {
-        foreach (var item in this.DiagnosticItems.ToList())
+        foreach (var item in this.DiagnosticItems.ToArray())
         {
             if (item.TreeItem == treeItem)
             {
@@ -156,7 +151,7 @@ public sealed class DiagnosticContext : IDisposable, INotifyPropertyChanged
             && sender is DiagnosticProvider diagnosticProvider)
         {
             // Always remove the diagnostics from the affected provider first
-            foreach (var diagnosticItem in this.DiagnosticItems.Where(x => ReferenceEquals(x.DiagnosticProvider, diagnosticProvider)).ToList())
+            foreach (var diagnosticItem in this.DiagnosticItems.Where(x => ReferenceEquals(x.DiagnosticProvider, diagnosticProvider)).ToArray())
             {
                 this.DiagnosticItems.Remove(diagnosticItem);
             }

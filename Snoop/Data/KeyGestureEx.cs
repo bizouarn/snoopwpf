@@ -82,12 +82,7 @@ public class KeyGestureEx : KeyGesture, IEquatable<KeyGestureEx>
 
     public override bool Equals(object? obj)
     {
-        if (obj is not KeyGestureEx other)
-        {
-            return false;
-        }
-
-        return this.Equals(other);
+        return obj is KeyGestureEx other && this.Equals(other);
     }
 
     public bool Equals(KeyGestureEx? other)
@@ -150,12 +145,7 @@ public class KeyGestureExConverter : TypeConverter
     public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
     {
         // We can only handle string.
-        if (sourceType == typeof(string))
-        {
-            return true;
-        }
-
-        return false;
+        return sourceType == typeof(string);
     }
 
     /// <inheritdoc />

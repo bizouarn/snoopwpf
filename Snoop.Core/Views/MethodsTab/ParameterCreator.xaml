@@ -11,7 +11,6 @@
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                          xmlns:methodsTab="clr-namespace:Snoop.Views.MethodsTab"
-                         xmlns:snoop="clr-namespace:Snoop"
                          xmlns:windows="clr-namespace:Snoop.Windows"
                          Title="ParameterCreator"
                          Width="700"

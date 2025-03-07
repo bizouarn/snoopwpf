@@ -47,22 +47,14 @@ public class SnoopSingleFilter : SnoopFilter, ICloneable
     {
         debugLine = debugLine?.ToLower() ?? string.Empty;
         var lowerText = this.Text.ToLower();
-        var filterMatches = false;
-        switch (this.FilterType)
+        var filterMatches = this.FilterType switch
         {
-            case FilterType.Contains:
-                filterMatches = debugLine.Contains(lowerText, StringComparison.Ordinal);
-                break;
-            case FilterType.StartsWith:
-                filterMatches = debugLine.StartsWith(lowerText, StringComparison.Ordinal);
-                break;
-            case FilterType.EndsWith:
-                filterMatches = debugLine.EndsWith(lowerText, StringComparison.Ordinal);
-                break;
-            case FilterType.RegularExpression:
-                filterMatches = TryMatch(debugLine, lowerText);
-                break;
-        }
+            FilterType.Contains => debugLine.Contains(lowerText, StringComparison.Ordinal),
+            FilterType.StartsWith => debugLine.StartsWith(lowerText, StringComparison.Ordinal),
+            FilterType.EndsWith => debugLine.EndsWith(lowerText, StringComparison.Ordinal),
+            FilterType.RegularExpression => TryMatch(debugLine, lowerText),
+            _ => false
+        };
 
         if (this.IsInverse)
         {

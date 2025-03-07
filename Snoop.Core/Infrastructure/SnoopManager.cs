@@ -144,9 +144,6 @@ public class SnoopManager
                         appDomain.CreateInstanceFrom(assemblyFullName, fullInjectorClassName!);
 
                         // if there is no exception we consider the injection successful
-                        var appDomainSucceeded = true;
-                        succeeded = succeeded || appDomainSucceeded;
-
                         LogHelper.WriteLine($"Successfully created Snoop instance in app domain \"{appDomain.FriendlyName}\".");
                     }
                     catch (Exception exception)
@@ -158,7 +155,7 @@ public class SnoopManager
             }
         }
 
-        if (succeeded == false)
+        if (!succeeded)
         {
             MessageBox.Show("Can't find a current application or a PresentationSource root visual.",
                 "Can't Snoop",
@@ -236,17 +233,12 @@ public class SnoopManager
 
     private static Func<SnoopMainBaseWindow> GetInstanceCreator(SnoopStartTarget startTarget)
     {
-        switch (startTarget)
+        return startTarget switch
         {
-            case SnoopStartTarget.SnoopUI:
-                return () => new SnoopUI();
-
-            case SnoopStartTarget.Zoomer:
-                return () => new Zoomer();
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(startTarget), startTarget, null);
-        }
+            SnoopStartTarget.SnoopUI => () => new SnoopUI(),
+            SnoopStartTarget.Zoomer => () => new Zoomer(),
+            _ => throw new ArgumentOutOfRangeException(nameof(startTarget), startTarget, null)
+        };
     }
 
     private static SnoopMainBaseWindow CreateSnoopWindow(TransientSettingsData settingsData, DispatcherRootObjectPair dispatcherRootObjectPair, Func<SnoopMainBaseWindow> instanceCreator)

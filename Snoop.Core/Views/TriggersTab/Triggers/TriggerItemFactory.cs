@@ -4,28 +4,28 @@ using System.Windows;
 
 public static class TriggerItemFactory
 {
-    public static TriggerItemBase? GetTriggerItem(TriggerBase trigger, DependencyObject source, TriggerSource triggerSource)
+    public static TriggerItemBase? GetTriggerItem(TriggerBase triggerBase, DependencyObject source, TriggerSource triggerSource)
     {
         TriggerItemBase triggerItem;
-        if (trigger is Trigger)
+        if (triggerBase is Trigger trigger)
         {
-            triggerItem = new TriggerItem((Trigger)trigger, source, triggerSource);
+            triggerItem = new TriggerItem(trigger, source, triggerSource);
         }
-        else if (trigger is DataTrigger)
+        else if (triggerBase is DataTrigger dataTrigger)
         {
-            triggerItem = new DataTriggerItem((DataTrigger)trigger, source, triggerSource);
+            triggerItem = new DataTriggerItem(dataTrigger, source, triggerSource);
         }
-        else if (trigger is MultiTrigger)
+        else if (triggerBase is MultiTrigger multiTrigger)
         {
-            triggerItem = new MultiTriggerItem((MultiTrigger)trigger, source, triggerSource);
+            triggerItem = new MultiTriggerItem(multiTrigger, source, triggerSource);
         }
-        else if (trigger is MultiDataTrigger)
+        else if (triggerBase is MultiDataTrigger multiDataTrigger)
         {
-            triggerItem = new MultiDataTriggerItem((MultiDataTrigger)trigger, source, triggerSource);
+            triggerItem = new MultiDataTriggerItem(multiDataTrigger, source, triggerSource);
         }
-        else if (trigger is EventTrigger)
+        else if (triggerBase is EventTrigger eventTrigger)
         {
-            triggerItem = new EventTriggerItem((EventTrigger)trigger, source, triggerSource);
+            triggerItem = new EventTriggerItem(eventTrigger, source, triggerSource);
         }
         else
         {

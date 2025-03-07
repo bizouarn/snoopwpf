@@ -28,12 +28,8 @@ public static class SnoopWindowUtils
         {
             foreach (PresentationSource? presentationSource in PresentationSource.CurrentSources)
             {
-                if (presentationSource is null)
-                {
-                    continue;
-                }
-
-                if (presentationSource.CheckAccess()
+                if (presentationSource != null
+                    && presentationSource.CheckAccess()
                     && presentationSource.RootVisual is Window window
                     && window.CheckAccess()
                     && window.Visibility == Visibility.Visible)
@@ -59,12 +55,8 @@ public static class SnoopWindowUtils
                 // second: try and find a visible window in the list of the current application's windows
                 foreach (Window? window in Application.Current.Windows)
                 {
-                    if (window is null)
-                    {
-                        continue;
-                    }
-
-                    if (window.CheckAccess()
+                    if (window != null
+                        && window.CheckAccess()
                         && window.Visibility == Visibility.Visible)
                     {
                         ownerWindow = window;
@@ -79,12 +71,8 @@ public static class SnoopWindowUtils
             // third: try and find a visible window in the list of current presentation sources
             foreach (PresentationSource? presentationSource in PresentationSource.CurrentSources)
             {
-                if (presentationSource is null)
-                {
-                    continue;
-                }
-
-                if (presentationSource.CheckAccess()
+                if (presentationSource != null
+                    && presentationSource.CheckAccess()
                     && presentationSource.RootVisual is Window window
                     && window.CheckAccess()
                     && window.Visibility == Visibility.Visible)
@@ -111,7 +99,7 @@ public static class SnoopWindowUtils
 
     public static void LoadWindowPlacement(Window window, WINDOWPLACEMENT? windowPlacement)
     {
-        if (windowPlacement.HasValue == false)
+        if (!windowPlacement.HasValue)
         {
             return;
         }

@@ -25,11 +25,6 @@ public sealed class ColorToSolidColorBrushConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is not SolidColorBrush brush)
-        {
-            return DependencyProperty.UnsetValue;
-        }
-
-        return brush.Color;
+        return value is not SolidColorBrush brush ? DependencyProperty.UnsetValue : brush.Color;
     }
 }

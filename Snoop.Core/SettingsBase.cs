@@ -52,7 +52,7 @@ public abstract class SettingsBase<T> : INotifyPropertyChanged
     {
         T? loadedSettings = null;
 
-        if (File.Exists(this.SettingsFile) == false)
+        if (!File.Exists(this.SettingsFile))
         {
             loadedSettings = new T();
         }
@@ -81,7 +81,7 @@ public abstract class SettingsBase<T> : INotifyPropertyChanged
 
         var directory = Path.GetDirectoryName(this.SettingsFile);
 
-        if (string.IsNullOrEmpty(directory) == false)
+        if (!string.IsNullOrEmpty(directory))
         {
             Directory.CreateDirectory(directory);
         }

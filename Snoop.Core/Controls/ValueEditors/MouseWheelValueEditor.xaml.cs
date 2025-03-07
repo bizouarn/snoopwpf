@@ -55,8 +55,7 @@ public partial class MouseWheelValueEditor
             tinyIncrement = true;
         }
 
-        var tb = fe as TextBlock;
-        if (tb is not null
+        if (fe is TextBlock tb
             && tb.Tag is not null
             && this.PropertyInfo?.Property is not null)
         {
@@ -211,7 +210,7 @@ public partial class MouseWheelValueEditor
         fields[fieldNum - 1] = partValue;
 
         // re-assemble back to Brush value
-        var newValue = string.Format(@"{0},{1},{2},{3}", fields[0], fields[1], fields[2], fields[3]);
+        var newValue = string.Format("{0},{1},{2},{3}", fields[0], fields[1], fields[2], fields[3]);
 
         this.PropertyInfo.StringValue = newValue;
     }
@@ -250,7 +249,7 @@ public partial class MouseWheelValueEditor
         fields[fieldNum - 1] = partValue;
 
         // re-assemble back to Brush value
-        var newValue = string.Format(@"#{0}{1}{2}{3}", fields[0], fields[1], fields[2], fields[3]);
+        var newValue = string.Format("#{0}{1}{2}{3}", fields[0], fields[1], fields[2], fields[3]);
 
         this.PropertyInfo.StringValue = newValue;
     }

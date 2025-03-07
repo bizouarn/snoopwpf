@@ -55,12 +55,7 @@ public abstract class TreeService : IDisposable, INotifyPropertyChanged
 
     public IEnumerable GetChildren(TreeItem treeItem)
     {
-        if (treeItem.OmitChildren)
-        {
-            return Enumerable.Empty<object>();
-        }
-
-        return this.GetChildren(treeItem.Target);
+        return treeItem.OmitChildren ? Enumerable.Empty<object>() : this.GetChildren(treeItem.Target);
     }
 
     public abstract IEnumerable GetChildren(object target);

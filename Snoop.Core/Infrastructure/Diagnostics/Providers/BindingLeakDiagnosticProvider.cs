@@ -43,57 +43,6 @@ public class BindingLeakDiagnosticProvider : DiagnosticProvider
         }
     }
 
-    //protected override IEnumerable<DiagnosticItem> GetDiagnosticItemsInternal(TreeItem treeItem)
-    //{
-    // if (valueChangedHandlersFieldInfo is null)
-    // {
-    //     yield break;
-    // }
-    //
-    // if (treeItem.Target is not DependencyObject dependencyObject)
-    // {
-    //     yield break;
-    // }
-    //
-    // foreach (PropertyDescriptor? property in TypeDescriptor.GetProperties(dependencyObject.GetType()))
-    // {
-    //     if (property is null)
-    //     {
-    //         continue;
-    //     }
-    //
-    //     var dpd = DependencyPropertyDescriptor.FromProperty(property);
-    //
-    //     if (dpd is null)
-    //     {
-    //         continue;
-    //     }
-    //
-    //     if (BindingOperations.IsDataBound(dependencyObject, dpd.DependencyProperty) == false)
-    //     {
-    //         continue;
-    //     }
-    //
-    //     var valueChangedHandlers = (Hashtable?)valueChangedHandlersFieldInfo.GetValue(property);
-    //
-    //     if (valueChangedHandlers is not null
-    //         && valueChangedHandlers.Count > 0)
-    //     {
-    //         yield return
-    //             new DiagnosticItem(this,
-    //                 "Binding leak",
-    //                 $"Property '{dpd.DisplayName}' is bound to ??? which causes a binding leak.",
-    //                 DiagnosticArea.Binding,
-    //                 DiagnosticLevel.Warning)
-    //             {
-    //                 TreeItem = treeItem,
-    //                 Dispatcher = dependencyObject.Dispatcher,
-    //                 SourceObject = dependencyObject
-    //             };
-    //     }
-    // }
-    //}
-
     // Code idea, for looking into ReflectTypeDescriptionProvider, taken from https://faithlife.codes/blog/2008/10/detecting_bindings_that_should_be_onetime/
     // Credit goes to Bradley Grainger (https://github.com/bgrainger)
     private static ReadOnlyCollection<ReflectPropertyDescriptorInfo>? GetReflectPropertyDescriptorInfo()
@@ -161,17 +110,6 @@ public class BindingLeakDiagnosticProvider : DiagnosticProvider
         public IDictionary ValueChangedHandlers { get; }
 
         public string DisplayHandlerCount => string.Format(CultureInfo.InvariantCulture, " ({0:n0} handlers)", this.ValueChangedHandlers.Count);
-
-        private void GetTargets()
-        {
-            // var @delegate = ((System.Delegate)(new System.Collections.Hashtable.HashtableDebugView(valueChangedHandlers).Items[0]).Value);
-            // var valueChangedRecord = ((MS.Internal.Data.ValueChangedEventManager.ValueChangedRecord)@delegate.Target);
-            // var listeners = valueChangedRecord._listeners;
-            // var singleItemList = ((MS.Utility.SingleItemList<System.Windows.WeakEventManager.Listener>)listeners._list._listStore);
-            // var propertyPathWorker = ((MS.Internal.Data.PropertyPathWorker)singleItemList._loneEntry.Target);
-            // // _host == ClrBindingWorker
-            // propertyPathWorker._host.TargetElement
-        }
 
         public int CompareTo(ReflectPropertyDescriptorInfo? other)
         {

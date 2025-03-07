@@ -14,7 +14,7 @@ public partial class HighlightSettingsView
     {
         nameof(SelectionHighlightOptions.Default.Background),
         nameof(SelectionHighlightOptions.Default.BorderBrush),
-        nameof(SelectionHighlightOptions.Default.BorderThickness),
+        nameof(SelectionHighlightOptions.Default.BorderThickness)
     };
 
     public static readonly DependencyProperty PropertiesProperty = DependencyProperty.Register(nameof(Properties), typeof(ObservableCollection<PropertyInformation>), typeof(HighlightSettingsView), new PropertyMetadata(default(ObservableCollection<PropertyInformation>)));

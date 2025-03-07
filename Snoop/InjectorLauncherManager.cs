@@ -26,7 +26,7 @@ public static class InjectorLauncherManager
 
     public static void Launch(ProcessInfo processInfo, IntPtr targetHwnd, string assembly, string className, string methodName, string transientSettingsFile)
     {
-        if (File.Exists(transientSettingsFile) == false)
+        if (!File.Exists(transientSettingsFile))
         {
             throw new FileNotFoundException("The generated temporary settings file could not be found.", transientSettingsFile);
         }
@@ -39,7 +39,7 @@ public static class InjectorLauncherManager
             var architecture = NativeMethods.GetArchitectureWithoutException(processInfo.Process);
             var injectorLauncherExe = Path.Combine(directory, $"Snoop.InjectorLauncher.{architecture}.exe");
 
-            if (File.Exists(injectorLauncherExe) == false)
+            if (!File.Exists(injectorLauncherExe))
             {
                 var message = @$"Could not find the injector launcher ""{injectorLauncherExe}"".
 Snoop requires this component, which is part of the Snoop project, to do it's job.

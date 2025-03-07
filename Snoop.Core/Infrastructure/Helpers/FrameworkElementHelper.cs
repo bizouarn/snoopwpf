@@ -11,22 +11,12 @@ public static class FrameworkElementHelper
 
     public static Style? GetStyle(FrameworkElement fe)
     {
-        if (fe.Style is not null)
-        {
-            return fe.Style;
-        }
-
-        return GetThemeStyle(fe);
+        return fe.Style ?? GetThemeStyle(fe);
     }
 
     public static Style? GetStyle(FrameworkContentElement fce)
     {
-        if (fce.Style is not null)
-        {
-            return fce.Style;
-        }
-
-        return GetThemeStyle(fce);
+        return fce.Style ?? GetThemeStyle(fce);
     }
 
     public static FrameworkTemplate? GetTemplate(FrameworkElement fe)

@@ -29,7 +29,7 @@ public static class DoubleHelper
     {
         // in case they are Infinities (then epsilon check does not work)
         // ReSharper disable once CompareOfFloatsByEqualityOperator
-        if (value1 == value2)
+        if (value1.Equals(value2))
         {
             return true;
         }

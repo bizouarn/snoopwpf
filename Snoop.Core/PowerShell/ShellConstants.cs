@@ -6,8 +6,6 @@
 namespace Snoop.PowerShell;
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using Microsoft.Win32;
 using Snoop.Data.Tree;
 

@@ -20,7 +20,7 @@ public partial class BindingDiagnosticHelper : ICacheManaged
 #endif
     }
 
-    public bool IsActive { get; private set; }
+    public bool IsActive { get; }
 
     public void Activate()
     {

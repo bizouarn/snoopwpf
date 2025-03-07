@@ -19,7 +19,7 @@ public class ResourceKeyCache : ICacheManaged
     {
     }
 
-    public object? GetOrAddKey(DependencyObject element, object value)
+    public object GetOrAddKey(DependencyObject element, object value)
     {
         var resourceKey = this.GetKey(value);
 
@@ -34,17 +34,12 @@ public class ResourceKeyCache : ICacheManaged
 
     public object? GetKey(object value)
     {
-        if (this.keys.TryGetValue(value, out var key))
-        {
-            return key;
-        }
-
-        return null;
+        return this.keys.TryGetValue(value, out var key) ? key : null;
     }
 
     public void Cache(object value, object key)
     {
-        if (this.keys.ContainsKey(value) == false)
+        if (!this.keys.ContainsKey(value))
         {
             this.keys.Add(value, key);
         }

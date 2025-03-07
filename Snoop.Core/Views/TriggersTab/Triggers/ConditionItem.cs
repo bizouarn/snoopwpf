@@ -104,11 +104,11 @@ public class ConditionItem : DependencyObject, IDisposable, INotifyPropertyChang
 
     public string? SourceName { get; set; }
 
-    public string? StringValue
+    public string StringValue
     {
         get
         {
-            if (BindingOperations.IsDataBound(this, CurrentValueProperty) == false)
+            if (!BindingOperations.IsDataBound(this, CurrentValueProperty))
             {
                 return string.Empty;
             }
@@ -175,16 +175,11 @@ public class ConditionItem : DependencyObject, IDisposable, INotifyPropertyChang
         }
     }
 
-    public string? TargetValue
+    public string TargetValue
     {
         get
         {
-            if (this.targetValue is null)
-            {
-                return "null";
-            }
-
-            return this.targetValue.ToString();
+            return this.targetValue is null ? "null" : this.targetValue.ToString();
         }
     }
 

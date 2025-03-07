@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Snoop.Core;
@@ -42,9 +43,7 @@ public partial class SetFiltersWindow
 
     private void ButtonAddFilter_Click(object sender, RoutedEventArgs e)
     {
-        //ViewModel.Filters.Add(new SnoopSingleFilter());
         this.ViewModel.AddFilter(new SnoopSingleFilter());
-        //this.listBoxFilters.ScrollIntoView(this.listBoxFilters.ItemContainerGenerator.ContainerFromIndex(this.listBoxFilters.Items.Count - 1));
     }
 
     private void ButtonRemoveFilter_Click(object sender, RoutedEventArgs e)
@@ -59,7 +58,6 @@ public partial class SetFiltersWindow
     {
         this.SaveFiltersToSettings();
 
-        //this.ViewModel.IsSet = true;
         this.ViewModel.SetIsSet();
         this.setFilterClicked = true;
         this.Close();
@@ -79,13 +77,7 @@ public partial class SetFiltersWindow
         var filtersToGroup = new List<SnoopFilter>();
         foreach (var item in this.listBoxFilters.SelectedItems)
         {
-            var filter = item as SnoopFilter;
-            if (filter is null)
-            {
-                continue;
-            }
-
-            if (filter.SupportsGrouping)
+            if (item is SnoopFilter filter && filter.SupportsGrouping)
             {
                 filtersToGroup.Add(filter);
             }
@@ -126,43 +118,22 @@ public partial class SetFiltersWindow
         Settings.Default.SnoopDebugFilters.UpdateWith(singleFilters.ToArray());
     }
 
-    private List<SnoopSingleFilter> MakeDeepCopyOfFilters(IEnumerable<SnoopFilter> filters)
+    private SnoopSingleFilter[] MakeDeepCopyOfFilters(IEnumerable<SnoopFilter> filters)
     {
-        var snoopSingleFilters = new List<SnoopSingleFilter>();
-
-        foreach (var filter in filters)
-        {
-            var singleFilter = filter as SnoopSingleFilter;
-            if (singleFilter is null)
-            {
-                continue;
-            }
-
-            var newFilter = (SnoopSingleFilter)singleFilter.Clone();
-
-            snoopSingleFilters.Add(newFilter);
-        }
-
-        return snoopSingleFilters;
+        return MakeCopyOfFiltersEnum(filters).ToArray();
     }
 
-    //private SnoopSingleFilter MakeDeepCopyOfFilter(SnoopSingleFilter filter)
-    //{
-    //  try
-    //  {
-    //      BinaryFormatter formatter = new BinaryFormatter();
-    //      var ms = new System.IO.MemoryStream();
-    //      formatter.Serialize(ms, filter);
-    //      SnoopSingleFilter deepCopy = (SnoopSingleFilter)formatter.Deserialize(ms);
-    //      ms.Close();
-    //      return deepCopy;
-    //  }
-    //  catch (Exception)
-    //  {
-    //      return null;
-    //  }
-    //}
+    private static IEnumerable<SnoopSingleFilter> MakeCopyOfFiltersEnum(IEnumerable<SnoopFilter> filters)
+    {
+        foreach (var filter in filters)
+        {
+            if (filter is SnoopSingleFilter singleFilter)
+            {
+                yield return (SnoopSingleFilter)singleFilter.Clone();
+            }
+        }
+    }
 
-    private readonly List<SnoopSingleFilter> initialFilters;
+    private readonly SnoopSingleFilter[] initialFilters;
     private bool setFilterClicked;
 }

@@ -51,12 +51,9 @@ public class ResourceDictionaryTreeItem : TreeItem
 
     private void ReallyLoadChildren()
     {
-        if (this.placeholderChild is not null)
+        if (this.placeholderChild is not null && !this.RemoveChild(this.placeholderChild))
         {
-            if (this.RemoveChild(this.placeholderChild) == false)
-            {
-                return;
-            }
+            return;
         }
 
         var order = 0;

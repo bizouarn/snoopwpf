@@ -294,22 +294,16 @@ public partial class AppChooser
         var gridColumn = (int)textBlock.GetValue(Grid.ColumnProperty);
         this.SortColumn = gridColumn;
 
-        var propertyName = string.Empty;
-        switch (gridColumn)
+        var propertyName = gridColumn switch
         {
             //by pid
-            case 1:
-                propertyName = nameof(WindowInfo.OwningProcessId);
-                break;
+            1 => nameof(WindowInfo.OwningProcessId),
             //by process name
-            case 2:
-                propertyName = nameof(WindowInfo.ProcessName);
-                break;
+            2 => nameof(WindowInfo.ProcessName),
             //by window name
-            case 3:
-                propertyName = nameof(WindowInfo.WindowTitle);
-                break;
-        }
+            3 => nameof(WindowInfo.WindowTitle),
+            _ => string.Empty
+        };
 
         //read current sort order
         var sortDirection = this.WindowInfos.SortDescriptions.FirstOrDefault().Direction;

@@ -1,4 +1,5 @@
 // ReSharper disable once CheckNamespace
+
 namespace Snoop.Data;
 
 using System;
@@ -31,11 +32,11 @@ public sealed class TransientSettingsData
 
     public bool EnableDiagnostics { get; set; } = true;
 
-    public string? SnoopInstallPath { get; set; } = Environment.GetEnvironmentVariable(SettingsHelper.SNOOP_INSTALL_PATH_ENV_VAR);
+    public string? SnoopInstallPath { get; set; } = Environment.GetEnvironmentVariable(SettingsHelper.SNOOPINSTALLPATHENVVAR);
 
     public string WriteToFile()
     {
-        var settingsFile = Path.GetTempFileName();
+        var settingsFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
         LogHelper.WriteLine($"Writing transient settings file to \"{settingsFile}\"");
 
@@ -47,12 +48,7 @@ public sealed class TransientSettingsData
 
     public static TransientSettingsData LoadCurrentIfRequired(string settingsFile)
     {
-        if (Current is not null)
-        {
-            return Current;
-        }
-
-        return LoadCurrent(settingsFile);
+        return Current ?? LoadCurrent(settingsFile);
     }
 
     public static TransientSettingsData LoadCurrent(string settingsFile)
@@ -62,7 +58,7 @@ public sealed class TransientSettingsData
         using var stream = new FileStream(settingsFile, FileMode.Open);
         Current = (TransientSettingsData?)serializer.Deserialize(stream) ?? new TransientSettingsData();
 
-        Environment.SetEnvironmentVariable(SettingsHelper.SNOOP_INSTALL_PATH_ENV_VAR, Current.SnoopInstallPath, EnvironmentVariableTarget.Process);
+        Environment.SetEnvironmentVariable(SettingsHelper.SNOOPINSTALLPATHENVVAR, Current.SnoopInstallPath, EnvironmentVariableTarget.Process);
 
         return Current;
     }

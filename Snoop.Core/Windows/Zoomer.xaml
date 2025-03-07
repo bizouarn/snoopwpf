@@ -8,7 +8,6 @@
                              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                              xmlns:converters="clr-namespace:Snoop.Converters"
-                             xmlns:snoop="clr-namespace:Snoop"
                              xmlns:windows="clr-namespace:Snoop.Windows"
                              Title="Zoomer"
                              Width="640"

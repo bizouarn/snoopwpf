@@ -21,24 +21,22 @@ public static class Injector
 
         var applicationDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Snoop");
 
-        if (Directory.Exists(applicationDataPath) == false)
+        if (!Directory.Exists(applicationDataPath))
         {
             Directory.CreateDirectory(applicationDataPath);
         }
 
         var pathname = Path.Combine(applicationDataPath, "SnoopLog.txt");
 
-        if (append == false)
+        if (!append)
         {
             File.Delete(pathname);
         }
 
         var fi = new FileInfo(pathname);
 
-        using (var sw = fi.AppendText())
-        {
-            sw.WriteLine(logMessage);
-        }
+        using var sw = fi.AppendText();
+        sw.WriteLine(logMessage);
     }
 
     [PublicAPI]
@@ -48,7 +46,7 @@ public static class Injector
 
         if (processFromHandle is null)
         {
-            return; // todo: add logging
+            return;
         }
 
         InjectIntoProcess(processFromHandle, injectorData);
@@ -67,14 +65,12 @@ public static class Injector
     {
         LogMessage($"Trying to load \"{pathToDll}\" in process \"{processWrapper.Id}\"...");
 
-        if (File.Exists(pathToDll) == false)
+        if (!File.Exists(pathToDll))
         {
             throw new FileNotFoundException("Could not find file for loading in foreign process.", pathToDll);
         }
 
-        var stringForRemoteProcess = pathToDll;
-
-        var bufLen = (stringForRemoteProcess.Length + 1) * Marshal.SizeOf(typeof(char));
+        var bufLen = (pathToDll.Length + 1) * Marshal.SizeOf(typeof(char));
         var remoteAddress = NativeMethods.VirtualAllocEx(processWrapper.Handle, IntPtr.Zero, (uint)bufLen, NativeMethods.AllocationType.Commit, NativeMethods.MemoryProtection.ReadWrite);
 
         if (remoteAddress == IntPtr.Zero)
@@ -82,8 +78,8 @@ public static class Injector
             throw new Win32Exception();
         }
 
-        var address = Marshal.StringToHGlobalUni(stringForRemoteProcess);
-        var size = (uint)(sizeof(char) * stringForRemoteProcess.Length);
+        var address = Marshal.StringToHGlobalUni(pathToDll);
+        var size = (uint)(sizeof(char) * pathToDll.Length);
 
         try
         {
@@ -169,7 +165,7 @@ public static class Injector
     /// <summary>
     /// Frees a library in a foreign process.
     /// </summary>
-    private static bool FreeLibraryInForeignProcess(ProcessWrapper processWrapper, string moduleName, IntPtr moduleHandleInForeignProcess)
+    private static void FreeLibraryInForeignProcess(ProcessWrapper processWrapper, string moduleName, IntPtr moduleHandleInForeignProcess)
     {
         LogMessage($"Trying to free module \"{moduleName}\" with handle {moduleHandleInForeignProcess} in process \"{processWrapper.Id}\"...");
 
@@ -178,11 +174,6 @@ public static class Injector
         var hLibrary = NativeMethods.GetModuleHandle("kernel32");
 
         var procAddress = NativeMethods.GetProcAddress(hLibrary, "FreeLibraryAndExitThread");
-
-        if (procAddress == IntPtr.Zero)
-        {
-            // todo: error handling
-        }
 
         var remoteThread = NativeMethods.CreateRemoteThread(processWrapper.Handle,
             IntPtr.Zero,
@@ -196,7 +187,6 @@ public static class Injector
             if (remoteThread == IntPtr.Zero)
             {
                 LogMessage("Could not create remote thread.");
-                return false;
             }
 
             NativeMethods.WaitForSingleObject(remoteThread);
@@ -207,8 +197,6 @@ public static class Injector
         }
 
         LogMessage($"Successfully freed \"{moduleHandleInForeignProcess}\" in process \"{processWrapper.Id}\".");
-
-        return true;
     }
 
     private static void InjectSnoop(ProcessWrapper processWrapper, InjectorData injectorData)
@@ -218,12 +206,12 @@ public static class Injector
 
         LogMessage($"Trying to load \"{pathToInjectorDll}\"...");
 
-        if (File.Exists(pathToInjectorDll) == false)
+        if (!File.Exists(pathToInjectorDll))
         {
             throw new FileNotFoundException("Could not find injector dll.", pathToInjectorDll);
         }
 
-        var tempLogFile = Path.GetTempFileName();
+        var tempLogFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
         var parameters = new[]
         {
@@ -286,7 +274,7 @@ public static class Injector
                         return;
                     }
 
-                    LogMessage($"Calling \"ExecuteInDefaultAppDomain\" on injector component...");
+                    LogMessage("Calling \"ExecuteInDefaultAppDomain\" on injector component...");
                     LogMessage($"Args = {stringForRemoteProcess}");
 
                     var remoteThread = NativeMethods.CreateRemoteThread(processWrapper.Handle, IntPtr.Zero, 0, remoteProcAddress, remoteAddress, 0, out _);

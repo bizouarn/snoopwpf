@@ -23,7 +23,6 @@ public class ProperTreeView : TreeView
     private const int MinStackRequired = 0x10000; // 64k
 
     private SnoopUI? snoopUI;
-    private ScrollViewer? scrollViewer;
 
     [ThreadStatic]
     private static IntPtr stackLimitLow;
@@ -135,13 +134,6 @@ public class ProperTreeView : TreeView
     protected override DependencyObject GetContainerForItemOverride()
     {
         return new ProperTreeViewItem(new WeakReference(this));
-    }
-
-    public override void OnApplyTemplate()
-    {
-        base.OnApplyTemplate();
-
-        this.scrollViewer = this.Template.FindName("_tv_scrollviewer_", this) as ScrollViewer;
     }
 }
 
